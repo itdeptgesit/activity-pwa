@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap');
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  --background: #f5f5f0;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+  --primary: #1a1a2e;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f0ea;
+  --secondary-foreground: #6b6b80;
+  --muted: #f0f0ea;
+  --muted-foreground: #9090a0;
+  --accent: #f5c842;
+  --accent-foreground: #1a1a2e;
+  --destructive: #ef4444;
+  --border: rgba(0,0,0,0.07);
+  --input: rgba(0,0,0,0.06);
+  --ring: #f5c842;
+  --radius: 1rem;
+
+  /* App-specific */
+  --app-amber: #f5c842;
+  --app-navy: #1a1a2e;
+  --app-bg: #f5f5f0;
+  --app-card: #ffffff;
+  --app-text: #1a1a2e;
+  --app-text-2: #7070808;
+  --app-text-muted: #a0a0b0;
+}
+
+/* ========================================
+   BASE
+======================================== */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    overscroll-behavior-y: none;
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+    overflow-x: hidden;
+    min-height: 100dvh;
+    background: #f5f5f0;
+  }
+}
+
+/* ========================================
+   UTILITIES
+======================================== */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Status colors */
+.badge-completed  { background: #e8faf2; color: #16a34a; border: 1px solid #bbf7d0; }
+.badge-progress   { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.badge-alert      { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.badge-pending    { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+
+/* Card shadow */
+.card-shadow { box-shadow: 0 2px 16px rgba(0,0,0,0.07); }
+.card-shadow-md { box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
+
+/* Amber button */
+.btn-amber {
+  background: #f5c842;
+  color: #1a1a2e;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.btn-amber:hover  { background: #f0be30; transform: translateY(-1px); }
+.btn-amber:active { transform: scale(0.97); }
+
+/* Slide in up */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.slide-up { animation: slideUp 0.3s ease forwards; }
+
+@keyframes spin { to { transform: rotate(360deg); } }

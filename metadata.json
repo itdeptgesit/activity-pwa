@@ -1,0 +1,5 @@
+{
+  "name": "IT Activity Log PWA",
+  "description": "Mobile-first PWA for tracking IT work activities and logs.",
+  "requestFramePermissions": []
+}
