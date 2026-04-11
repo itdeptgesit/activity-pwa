@@ -96,7 +96,7 @@ export default function ActivityList({
 
         {/* Filter Tabs */}
         <div style={{
-          display: 'flex', gap: 8, marginBottom: 20,
+          display: 'flex', gap: 10, marginBottom: 20,
           overflowX: 'auto', paddingBottom: 4,
           scrollbarWidth: 'none', msOverflowStyle: 'none',
           WebkitOverflowScrolling: 'touch'
@@ -106,14 +106,14 @@ export default function ActivityList({
               key={f}
               onClick={() => handleFilterChange(f)}
               style={{
-                padding: '10px 18px', borderRadius: 14,
-                background: activeFilter === f ? 'var(--app-text)' : 'var(--app-card)',
-                color: activeFilter === f ? 'var(--app-bg)' : 'var(--app-muted)',
-                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                boxShadow: activeFilter === f ? '0 8px 16px rgba(26,26,46,0.15)' : '0 2px 8px rgba(0,0,0,0.02)',
+                padding: '10px 20px', borderRadius: 16,
+                background: activeFilter === f ? 'var(--accent)' : 'var(--app-card)',
+                color: activeFilter === f ? '#fff' : 'var(--app-muted)',
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                boxShadow: activeFilter === f ? '0 8px 16px rgba(99, 102, 241, 0.25)' : 'none',
                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 whiteSpace: 'nowrap',
-                border: activeFilter === f ? 'none' : '1px solid var(--app-border)'
+                border: activeFilter === f ? '1px solid var(--accent)' : '1px solid var(--app-border)'
               }}
             >
               {f}
@@ -137,7 +137,7 @@ export default function ActivityList({
               fontSize: 14, fontWeight: 500, outline: 'none',
               transition: 'all 0.2s',
             }}
-            onFocus={e => e.target.style.borderColor = '#10B981'}
+            onFocus={e => e.target.style.borderColor = 'var(--accent)'}
             onBlur={e => e.target.style.borderColor = 'var(--app-border)'}
           />
         </div>
@@ -152,22 +152,19 @@ export default function ActivityList({
           >
             <div style={{
               width: 72, height: 72, borderRadius: 24,
-              background: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
+              background: 'var(--app-card)', boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
               margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '1.5px solid var(--app-border)'
             }}>
-              <ClipboardList size={28} color="#CBD5E1" />
+              <ClipboardList size={28} color="var(--app-muted)" />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', marginBottom: 8 }}>No logs found</h3>
-            <p style={{ fontSize: 13, color: '#94A3B8', fontWeight: 500 }}>Try adjusting your filters or search keywords</p>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--app-text)', marginBottom: 8 }}>No logs found</h3>
+            <p style={{ fontSize: 13, color: 'var(--app-muted)', fontWeight: 500 }}>Try adjusting your filters or search keywords</p>
           </motion.div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {paginatedItems.map((activity, index) => {
               const IconComp = CATEGORY_ICON[activity.category ?? 'Other'] || CATEGORY_ICON['Other'];
-              const bgColors = ['#FEE2E2', '#E0E7FF', '#ECFDF5', '#FFF7ED', '#F5F3FF'];
-              const textColors = ['#991B1B', '#3730A3', '#065F46', '#9A3412', '#5B21B6'];
-              const bentoBg = bgColors[index % bgColors.length];
-              const textColor = textColors[index % textColors.length];
 
               return (
 
@@ -193,16 +190,16 @@ export default function ActivityList({
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
                         <span style={{
-                          fontSize: 9, fontWeight: 700, color: '#fff', background: activity.status === 'Completed' ? '#10B981' : '#F59E0B',
-                          padding: '2px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em'
+                          fontSize: 9, fontWeight: 800, color: '#fff', background: activity.status === 'Completed' ? '#10B981' : '#F59E0B',
+                          padding: '2px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em'
                         }}>
                           {activity.status}
                         </span>
                         <span style={{
-                          fontSize: 9, fontWeight: 700, color: 'var(--app-muted)', background: 'var(--app-bg)',
-                          padding: '2px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em',
+                          fontSize: 9, fontWeight: 800, color: 'var(--app-muted)', background: 'var(--app-bg)',
+                          padding: '2px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em',
                           border: '1px solid var(--app-border)'
                         }}>
                           {activity.type}
@@ -211,18 +208,18 @@ export default function ActivityList({
                       <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--app-text)', lineHeight: 1.3, marginBottom: 4 }}>
                         {activity.activity_name}
                       </h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, opacity: 0.7, fontSize: 11, fontWeight: 500, color: 'var(--app-muted)' }}>
-                        <span>{activity.category}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, opacity: 0.7, fontSize: 11, fontWeight: 600, color: 'var(--app-muted)' }}>
+                        <span style={{ textTransform: 'uppercase' }}>{activity.category}</span>
                         <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'currentColor' }} />
                         <span>{activity.created_at ? format(new Date(activity.created_at), 'd MMM') : '—'}</span>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: 4 }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
                       {canEdit && (
                         <button onClick={(e) => { e.stopPropagation(); onEdit(activity); }} style={{
                           width: 32, height: 32, borderRadius: 10, background: 'var(--app-bg)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--app-border)', cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--app-border)', cursor: 'pointer',
                           color: 'var(--app-muted)'
                         }}>
                           <Pencil size={14} />
@@ -230,8 +227,8 @@ export default function ActivityList({
                       )}
                       {canDelete && (
                         <button onClick={(e) => { e.stopPropagation(); activity.id && onDelete(activity.id); }} style={{
-                          width: 32, height: 32, borderRadius: 10, background: '#fef2f2',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #fee2e2', cursor: 'pointer',
+                          width: 32, height: 32, borderRadius: 10, background: 'rgba(239, 68, 68, 0.05)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(239, 68, 68, 0.1)', cursor: 'pointer',
                           color: '#dc2626'
                         }}>
                           <Trash2 size={14} />
@@ -241,14 +238,20 @@ export default function ActivityList({
                   </div>
 
                   <div style={{
-                    alignSelf: 'flex-start', padding: '5px 10px', background: 'var(--app-bg)',
-                    borderRadius: 12, display: 'flex', alignItems: 'center', gap: 6, position: 'relative', zIndex: 1,
+                    alignSelf: 'flex-start', padding: '6px 14px', background: 'var(--app-bg)',
+                    borderRadius: 14, display: 'flex', alignItems: 'center', gap: 8, position: 'relative', zIndex: 1,
                     border: '1px solid var(--app-border)'
                   }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--app-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-bg)', fontSize: 10, fontWeight: 800 }}>
+                    <div style={{ 
+                      width: 20, height: 20, borderRadius: '50%', background: 'var(--app-text)', 
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                      color: 'var(--app-bg)', fontSize: 10, fontWeight: 900 
+                    }}>
                       {activity.it_personnel ? activity.it_personnel[0].toUpperCase() : 'U'}
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--app-text)' }}>{activity.it_personnel || 'IT Admin'}</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--app-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {activity.it_personnel || 'IT Admin'}
+                    </span>
                   </div>
                 </motion.div>
               );
@@ -267,19 +270,20 @@ export default function ActivityList({
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(p => p - 1)}
             style={{
-              width: 40, height: 40, borderRadius: 14, border: 'none',
-              background: '#fff', color: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.4 : 1,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+              width: 44, height: 44, borderRadius: 16,
+              background: 'var(--app-card)', color: 'var(--app-text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.3 : 1,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+              border: '1.5px solid var(--app-border)'
             }}
           >
             <ChevronLeft size={18} />
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {(() => {
               const pages = [];
-              const showMax = 3; // Show current, one before, one after
+              const showMax = 3;
 
               let startPage = Math.max(1, currentPage - 1);
               let endPage = Math.min(totalPages, startPage + showMax - 1);
@@ -324,10 +328,11 @@ export default function ActivityList({
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(p => p + 1)}
             style={{
-              width: 40, height: 40, borderRadius: 14, border: 'none',
-              background: '#fff', color: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.4 : 1,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+              width: 44, height: 44, borderRadius: 16,
+              background: 'var(--app-card)', color: 'var(--app-text)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.3 : 1,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+              border: '1.5px solid var(--app-border)'
             }}
           >
             <ChevronRight size={18} />
@@ -339,18 +344,19 @@ export default function ActivityList({
 }
 
 const pageBtnStyle = (isActive: boolean): React.CSSProperties => ({
-  width: 38, height: 38, borderRadius: 12, border: 'none',
-  background: isActive ? '#1a1a2e' : '#fff',
-  color: isActive ? '#fff' : '#64748b',
-  fontSize: 13, fontWeight: 700, cursor: 'pointer',
-  boxShadow: isActive ? '0 8px 20px rgba(26,26,46,0.2)' : '0 4px 10px rgba(0,0,0,0.02)',
+  width: 40, height: 40, borderRadius: 14,
+  background: isActive ? 'var(--app-text)' : 'var(--app-card)',
+  color: isActive ? 'var(--app-bg)' : 'var(--app-muted)',
+  fontSize: 13, fontWeight: 800, cursor: 'pointer',
+  boxShadow: isActive ? '0 8px 20px rgba(0,0,0,0.1)' : '0 4px 10px rgba(0,0,0,0.02)',
   transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
   transform: isActive ? 'scale(1.05)' : 'scale(1)',
-  display: 'flex', alignItems: 'center', justifyContent: 'center'
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
+  border: isActive ? 'none' : '1.5px solid var(--app-border)'
 });
 
 const ellipsisStyle: React.CSSProperties = {
-  fontSize: 13, color: '#CBD5E1', fontWeight: 700, padding: '0 4px'
+  fontSize: 13, color: 'var(--app-muted)', fontWeight: 800, padding: '0 4px'
 };
 
 

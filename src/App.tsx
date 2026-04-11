@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, BarChart2, ClipboardList, User, Plus, Loader2, AlertCircle, TrendingUp, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, DashboardStats, UserAccount } from './types';
@@ -34,23 +34,27 @@ export default function App() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [viewingActivityDetail, setViewingActivityDetail] = useState<Activity | null>(null);
   const [activeLogFilter, setActiveLogFilter] = useState<LogFilter>('All');
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('app-theme') as any) || 'light');
+  // Theme Management
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const saved = localStorage.getItem('app-theme');
+    if (saved) return saved as 'light' | 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+ 
+  useEffect(() => {
+    localStorage.setItem('app-theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   
   // Offline & Sync States (Moved to top to fix Hooks violation)
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [syncQueue, setSyncQueue] = useState<any[]>(() => JSON.parse(localStorage.getItem('sync-queue') || '[]'));
-
-  useEffect(() => {
-    localStorage.setItem('app-theme', theme);
-    document.documentElement.style.setProperty('--app-bg', theme === 'light' ? '#F8FAFC' : '#0F172A');
-    document.documentElement.style.setProperty('--app-header-bg', theme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.8)');
-    document.documentElement.style.setProperty('--app-text', theme === 'light' ? '#1E293B' : '#F8FAFC');
-    document.documentElement.style.setProperty('--app-card', theme === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(30, 41, 59, 0.7)');
-    document.documentElement.style.setProperty('--app-border', theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)');
-    document.documentElement.style.setProperty('--app-muted', theme === 'light' ? '#94A3B8' : '#64748B');
-  }, [theme]);
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -329,6 +333,23 @@ export default function App() {
     setActiveTab(tab);
   };
 
+  const handleThemeToggle = (e?: React.MouseEvent) => {
+    if (!document.startViewTransition || !e) {
+      setTheme(t => t === 'light' ? 'dark' : 'light');
+      return;
+    }
+
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    document.documentElement.style.setProperty('--reveal-x', `${x}px`);
+    document.documentElement.style.setProperty('--reveal-y', `${y}px`);
+
+    document.startViewTransition(() => {
+      setTheme(t => t === 'light' ? 'dark' : 'light');
+    });
+  };
+
   const filtered = activities.filter(a =>
     a.activity_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     a.category?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -360,6 +381,8 @@ export default function App() {
                   onAddNew={() => setIsFormOpen(true)}
                   onViewActivity={(a) => setViewingActivityDetail(a)}
                   onNavigateWithFilter={handleNavigateWithFilter}
+                  theme={theme}
+                  onThemeToggle={handleThemeToggle}
                 />
               </motion.div>
             )}
@@ -392,7 +415,7 @@ export default function App() {
                     onLogout={handleLogout} 
                     activities={activities} 
                     theme={theme}
-                    onThemeToggle={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+                    onThemeToggle={handleThemeToggle}
                   />
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>

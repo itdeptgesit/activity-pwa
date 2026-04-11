@@ -201,7 +201,7 @@ export default function ActivityForm({
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'center', padding: '14px 0 6px' }}>
-              <div style={{ width: 40, height: 4, borderRadius: 99, background: '#e8e8e8' }} />
+              <div style={{ width: 40, height: 4, borderRadius: 99, background: 'var(--app-border)' }} />
             </div>
 
             <div style={{

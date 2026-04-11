@@ -140,7 +140,7 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
                whileTap={{ scale: 0.97 }}
                onClick={() => { if (activity.id) { onDelete(activity.id); onClose(); } }}
                style={{ 
-                 width: 52, height: 52, borderRadius: 16, background: '#FEE2E2', color: '#EF4444',
+                 width: 52, height: 52, borderRadius: 16, background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444',
                  border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
                }}
              >

@@ -92,7 +92,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   return (
     <div style={{
       minHeight: '100dvh', display: 'flex', flexDirection: 'column',
-      background: '#F8FAFC', padding: '24px', position: 'relative',
+      background: 'var(--app-bg)', padding: '24px', position: 'relative',
       overflow: 'hidden', fontFamily: "'Poppins', sans-serif"
     }}>
       {/* ── SOFT AMBIENT ORBS ── */}
@@ -131,29 +131,29 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(24px)',
+                  background: 'var(--app-card)', backdropFilter: 'blur(24px)',
                   borderRadius: 32, padding: '40px 28px',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                  border: '1px solid var(--app-border)',
                   textAlign: 'center', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.08)'
                 }}
               >
                 <div style={{
-                  width: 72, height: 72, borderRadius: 24, background: '#ECFDF5',
+                  width: 72, height: 72, borderRadius: 24, background: 'rgba(16, 185, 129, 0.1)',
                   color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   margin: '0 auto 24px'
                 }}>
                   <CheckCircle2 size={36} />
                 </div>
-                <h2 style={{ fontSize: 22, fontWeight: 700, color: '#1a1a2e', marginBottom: 12 }}>Check your Inbox</h2>
-                <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, marginBottom: 28 }}>
+                <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--app-text)', marginBottom: 12 }}>Check your Inbox</h2>
+                <p style={{ fontSize: 14, color: 'var(--app-muted)', lineHeight: 1.6, marginBottom: 28 }}>
                   We've sent a secure recovery link to your registered email address.
                 </p>
                 <button
                   onClick={() => { setResetSent(false); setIsResetMode(false); }}
                   style={{
                     width: '100%', height: 52, borderRadius: 16, border: 'none',
-                    background: '#1a1a2e', color: '#fff', fontSize: 14, fontWeight: 600,
-                    cursor: 'pointer', boxShadow: '0 10px 25px rgba(26,26,46,0.15)'
+                    background: 'var(--app-text)', color: 'var(--app-bg)', fontSize: 14, fontWeight: 600,
+                    cursor: 'pointer', boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
                   }}
                 >
                   Return to Login
@@ -166,26 +166,27 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.7)', backdropFilter: 'blur(32px)',
+                  background: 'var(--app-card)', backdropFilter: 'blur(32px)',
                   WebkitBackdropFilter: 'blur(32px)',
                   borderRadius: 32, padding: '40px 28px',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                  border: '1px solid var(--app-border)',
                   boxShadow: '0 30px 60px -12px rgba(0,0,0,0.1)'
                 }}
               >
                 <div style={{ marginBottom: 32 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
-                    <img
-                      src="https://it.gesit.co.id/image/logo.png"
-                      alt="Logo"
-                      style={{ width: 'auto', height: 48, objectFit: 'contain' }}
-                      onError={(e) => { e.currentTarget.src = ''; /* Fallback logic if needed */ }}
-                    />
+                    <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img
+                        src="https://it.gesit.co.id/image/logo.png"
+                        alt="Logo"
+                        style={{ width: 'auto', height: 48, objectFit: 'contain' }}
+                      />
+                    </div>
                     <div>
-                      <h1 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a2e', letterSpacing: '-0.5px' }}>
+                      <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.7px' }}>
                         {isResetMode ? 'Account Recovery' : 'Activity Log IT'}
                       </h1>
-                      <p style={{ fontSize: 13, color: '#64748b', fontWeight: 500, marginTop: 4 }}>
+                      <p style={{ fontSize: 13, color: 'var(--app-muted)', fontWeight: 600, marginTop: 4 }}>
                         {isResetMode ? 'Enter your email to reset password' : 'Sign in to access your activity log'}
                       </p>
                     </div>
@@ -196,22 +197,22 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                   <motion.div
                     initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
                     style={{
-                      background: '#FEF2F2', border: '1px solid #FEE2E2', borderRadius: 14,
+                      background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)', borderRadius: 14,
                       padding: '12px 14px', display: 'flex', gap: 10, marginBottom: 24
                     }}
                   >
                     <AlertCircle size={16} color="#EF4444" style={{ flexShrink: 0 }} />
-                    <p style={{ fontSize: 12, color: '#991B1B', fontWeight: 500, lineHeight: 1.4 }}>{error}</p>
+                    <p style={{ fontSize: 12, color: '#EF4444', fontWeight: 600, lineHeight: 1.4 }}>{error}</p>
                   </motion.div>
                 )}
 
                 <form onSubmit={isResetMode ? handleResetPassword : handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginLeft: 4 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginLeft: 4 }}>
                       Email
                     </label>
                     <div style={{ position: 'relative' }}>
-                      <Mail size={16} color="#CBD5E1" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                      <Mail size={16} color="var(--app-muted)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
                       <input
                         type="text"
                         placeholder="email or username"
@@ -219,24 +220,22 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                         onChange={(e) => setIdentifier(e.target.value)}
                         required
                         style={{
-                          width: '100%', height: 48, padding: '0 16px 0 42px',
-                          background: '#fff', border: '1.5px solid #F1F5F9',
-                          borderRadius: 14, fontSize: 14, fontWeight: 500, color: '#1a1a2e', outline: 'none',
+                          width: '100%', height: 50, padding: '0 16px 0 42px',
+                          background: 'var(--app-bg)', border: '1.5px solid var(--app-border)',
+                          borderRadius: 14, fontSize: 14, fontWeight: 600, color: 'var(--app-text)', outline: 'none',
                           transition: 'all 0.2s'
                         }}
-                        onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.05)'; }}
-                        onBlur={(e) => { e.target.style.borderColor = '#F1F5F9'; e.target.style.boxShadow = 'none'; }}
                       />
                     </div>
                   </div>
 
                   {!isResetMode && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginLeft: 4 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginLeft: 4 }}>
                         Password
                       </label>
                       <div style={{ position: 'relative' }}>
-                        <Lock size={16} color="#CBD5E1" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
+                        <Lock size={16} color="var(--app-muted)" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }} />
                         <input
                           type={showPassword ? "text" : "password"}
                           placeholder="••••••••"
@@ -244,13 +243,11 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                           onChange={(e) => setPassword(e.target.value)}
                           required
                           style={{
-                            width: '100%', height: 48, padding: '0 42px',
-                            background: '#fff', border: '1.5px solid #F1F5F9',
-                            borderRadius: 14, fontSize: 14, fontWeight: 500, color: '#1a1a2e', outline: 'none',
+                            width: '100%', height: 50, padding: '0 42px',
+                            background: 'var(--app-bg)', border: '1.5px solid var(--app-border)',
+                            borderRadius: 14, fontSize: 14, fontWeight: 600, color: 'var(--app-text)', outline: 'none',
                             transition: 'all 0.2s'
                           }}
-                          onFocus={(e) => { e.target.style.borderColor = '#6366F1'; e.target.style.boxShadow = '0 0 0 4px rgba(99, 102, 241, 0.05)'; }}
-                          onBlur={(e) => { e.target.style.borderColor = '#F1F5F9'; e.target.style.boxShadow = 'none'; }}
                         />
                         <button
                           type="button"
@@ -260,7 +257,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                             background: 'none', border: 'none', cursor: 'pointer', padding: 4
                           }}
                         >
-                          {showPassword ? <EyeOff size={18} color="#94A3B8" /> : <Eye size={18} color="#94A3B8" />}
+                          {showPassword ? <EyeOff size={18} color="var(--app-muted)" /> : <Eye size={18} color="var(--app-muted)" />}
                         </button>
                       </div>
                     </div>
@@ -270,9 +267,9 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                     disabled={isLoading}
                     style={{
                       width: '100%', height: 52, borderRadius: 16, border: 'none',
-                      background: '#1a1a2e', color: '#fff', fontSize: 14, fontWeight: 600,
+                      background: 'var(--app-text)', color: 'var(--app-bg)', fontSize: 14, fontWeight: 800,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      gap: 10, marginTop: 8, boxShadow: '0 12px 25px -4px rgba(26,26,46,0.2)'
+                      gap: 10, marginTop: 8, boxShadow: '0 12px 25px rgba(0,0,0,0.15)'
                     }}
                   >
                     {isLoading ? <Loader2 size={20} className="animate-spin" /> : (isResetMode ? 'Send Reset Link' : 'Sign In')}
@@ -283,9 +280,9 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 {!isResetMode && (
                   <>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '20px 0' }}>
-                      <div style={{ flex: 1, height: 1.5, background: '#F1F5F9' }} />
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Or continue with</span>
-                      <div style={{ flex: 1, height: 1.5, background: '#F1F5F9' }} />
+                      <div style={{ flex: 1, height: 1.5, background: 'var(--app-border)' }} />
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Or continue with</span>
+                      <div style={{ flex: 1, height: 1.5, background: 'var(--app-border)' }} />
                     </div>
 
                     <motion.button
