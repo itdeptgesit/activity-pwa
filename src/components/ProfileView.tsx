@@ -111,7 +111,7 @@ export default function ProfileView({ onLogout, user, onUpdateSuccess, activitie
   ];
 
   return (
-    <div style={{ padding: '24px 20px 100px', background: 'transparent' }}>
+    <div style={{ padding: '110px 20px 100px', background: 'transparent' }}>
       
       {/* ── STICKY HEADER ── */}
       <div style={{ 

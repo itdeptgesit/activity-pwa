@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import { Activity, DashboardStats } from '../types';
 import { format, subDays, isSameDay } from 'date-fns';
 
-import ContributionHeatmap from './ContributionHeatmap';
+
 
 interface SummaryViewProps {
   activities: Activity[];
@@ -45,7 +45,7 @@ export default function SummaryView({ activities, stats }: SummaryViewProps) {
   const busyDay = trendData.reduce((prev, current) => (prev.count > current.count) ? prev : current);
 
   return (
-    <div style={{ padding: '24px 20px 100px', background: 'transparent', minHeight: '100dvh' }}>
+    <div style={{ padding: '115px 20px 100px', background: 'transparent', minHeight: '100dvh' }}>
       {/* Fixed Title Header */}
       <div style={{ 
         position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
@@ -58,10 +58,6 @@ export default function SummaryView({ activities, stats }: SummaryViewProps) {
         <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Activity Summary</h1>
         <p style={{ fontSize: 13, color: 'var(--app-muted)', marginTop: 4 }}>Analyzing your work patterns and performance</p>
       </div>
-
-      {/* ── HEATMAP ── */}
-      <ContributionHeatmap activities={activities} />
-
       {/* ── INSIGHTS BENTO ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 32 }}>
         <div style={{ background: '#0F4C5C', borderRadius: 28, padding: '24px', color: '#fff', gridColumn: '1 / -1', boxShadow: '0 10px 20px rgba(15, 76, 92, 0.2)' }}>

@@ -76,7 +76,7 @@ export default function ActivityList({
   };
 
   return (
-    <div style={{ padding: '240px 20px 120px', fontFamily: "'Poppins', sans-serif" }}>
+    <div style={{ padding: '270px 20px 120px', fontFamily: "'Poppins', sans-serif" }}>
 
       {/* Fixed Header Section */}
       <div style={{
