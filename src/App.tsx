@@ -34,14 +34,23 @@ export default function App() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
   const [viewingActivityDetail, setViewingActivityDetail] = useState<Activity | null>(null);
   const [activeLogFilter, setActiveLogFilter] = useState<LogFilter>('All');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('app-theme') as any) || 'light');
 
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
-
-  const currentUserName = currentUser?.fullName || '';
-  const userRole = currentUser?.role?.toLowerCase() || 'user';
   
-  const canDelete = userRole === 'admin';
-  const canEdit = userRole === 'admin' || userRole === 'user';
+  // Offline & Sync States (Moved to top to fix Hooks violation)
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [syncQueue, setSyncQueue] = useState<any[]>(() => JSON.parse(localStorage.getItem('sync-queue') || '[]'));
+
+  useEffect(() => {
+    localStorage.setItem('app-theme', theme);
+    document.documentElement.style.setProperty('--app-bg', theme === 'light' ? '#F8FAFC' : '#0F172A');
+    document.documentElement.style.setProperty('--app-header-bg', theme === 'light' ? 'rgba(248, 250, 252, 0.8)' : 'rgba(15, 23, 42, 0.8)');
+    document.documentElement.style.setProperty('--app-text', theme === 'light' ? '#1E293B' : '#F8FAFC');
+    document.documentElement.style.setProperty('--app-card', theme === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(30, 41, 59, 0.7)');
+    document.documentElement.style.setProperty('--app-border', theme === 'light' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.1)');
+    document.documentElement.style.setProperty('--app-muted', theme === 'light' ? '#94A3B8' : '#64748B');
+  }, [theme]);
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -50,6 +59,29 @@ export default function App() {
       setCurrentUser(null);
     }
   }, [session]);
+
+  // Network & Sync Persistence Hooks
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      processSyncQueue();
+    };
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    if (navigator.onLine) processSyncQueue();
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('sync-queue', JSON.stringify(syncQueue));
+  }, [syncQueue]);
 
   const fetchCurrentUser = async (email: string) => {
     try {
@@ -88,8 +120,11 @@ export default function App() {
     }
   };
 
-  // DEBUG POINT
-  // return <div style={{ background: 'blue', color: 'white', padding: '100px' }}>DEBUG: BEFORE USE-EFFECT</div>;
+  const currentUserName = currentUser?.fullName || '';
+  const userRole = currentUser?.role?.toLowerCase() || 'user';
+  
+  const canDelete = userRole === 'admin';
+  const canEdit = userRole === 'admin' || userRole === 'user';
 
   useEffect(() => {
     // 1. Initial Auth Check
@@ -138,13 +173,23 @@ export default function App() {
   }
 
   async function fetchActivities() {
+    if (!navigator.onLine) {
+      const cached = localStorage.getItem('cached-activities');
+      if (cached) setActivities(JSON.parse(cached));
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false });
       if (error) throw error;
       setActivities(data || []);
+      localStorage.setItem('cached-activities', JSON.stringify(data || []));
     } catch (e) {
       console.error(e);
+      const cached = localStorage.getItem('cached-activities');
+      if (cached) setActivities(JSON.parse(cached));
     } finally {
       setLoading(false);
     }
@@ -174,6 +219,30 @@ export default function App() {
 
   const handleSave = async (data: Partial<Activity>) => {
     const now = new Date().toISOString();
+    
+    // Optimistic Update
+    if (editingActivity) {
+      const updated = { ...editingActivity, ...data, updated_at: now };
+      setActivities(prev => prev.map(a => a.id === editingActivity.id ? updated : a));
+      
+      if (!isOnline) {
+        setSyncQueue(prev => [...prev, { type: 'UPDATE', id: editingActivity.id, data: { ...data, updated_at: now } }]);
+        setIsFormOpen(false);
+        setEditingActivity(null);
+        return;
+      }
+    } else {
+      const tempId = Math.floor(Math.random() * -1000000); // Temporary ID for UI
+      const newActivity = { ...data, id: tempId, created_at: now, updated_at: now } as Activity;
+      setActivities(prev => [newActivity, ...prev]);
+
+      if (!isOnline) {
+        setSyncQueue(prev => [...prev, { type: 'INSERT', data: { ...data, created_at: now, updated_at: now } }]);
+        setIsFormOpen(false);
+        return;
+      }
+    }
+
     try {
       if (editingActivity) {
         await supabase.from('activity_logs').update({ 
@@ -206,6 +275,16 @@ export default function App() {
 
   const confirmDelete = async () => {
     if (!deleteConfirmId) return;
+
+    // Optimistic Delete
+    setActivities(prev => prev.filter(a => a.id !== deleteConfirmId));
+
+    if (!isOnline) {
+      setSyncQueue(prev => [...prev, { type: 'DELETE', id: deleteConfirmId }]);
+      setDeleteConfirmId(null);
+      return;
+    }
+
     try {
       await supabase.from('activity_logs').delete().eq('id', deleteConfirmId);
       await fetchActivities();
@@ -215,6 +294,31 @@ export default function App() {
       setDeleteConfirmId(null);
     }
   };
+
+  // ── SYNC QUEUE PROCESSING ──
+  async function processSyncQueue() {
+    if (syncQueue.length === 0) return;
+    
+    const queue = [...syncQueue];
+    setSyncQueue([]); // Optimistically clear
+
+    for (const item of queue) {
+      try {
+        if (item.type === 'INSERT') {
+          await supabase.from('activity_logs').insert([item.data]);
+        } else if (item.type === 'UPDATE') {
+          await supabase.from('activity_logs').update(item.data).eq('id', item.id);
+        } else if (item.type === 'DELETE') {
+          await supabase.from('activity_logs').delete().eq('id', item.id);
+        }
+      } catch (e) {
+        console.error('Failed to sync item:', item, e);
+        // Put back in queue if it's a network error
+        setSyncQueue(prev => [...prev, item]);
+      }
+    }
+    fetchActivities();
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -231,7 +335,11 @@ export default function App() {
   );
 
   return (
-    <div style={{ background: '#f5f5f0', minHeight: '100dvh', maxWidth: 480, margin: '0 auto', position: 'relative' }}>
+    <div style={{ 
+      background: 'var(--app-bg)', color: 'var(--app-text)',
+      minHeight: '100dvh', maxWidth: 480, margin: '0 auto', position: 'relative',
+      transition: 'background 0.3s, color 0.3s'
+    }}>
 
       {/* ── MAIN ── */}
       <main style={{ paddingBottom: 110 }}>
@@ -279,7 +387,13 @@ export default function App() {
             {activeTab === 'profile' && (
               <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                 {currentUser ? (
-                  <ProfileView user={currentUser} onLogout={handleLogout} activities={activities} />
+                  <ProfileView 
+                    user={currentUser} 
+                    onLogout={handleLogout} 
+                    activities={activities} 
+                    theme={theme}
+                    onThemeToggle={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+                  />
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
                     <Loader2 size={32} className="animate-spin" color="#f5c842" />
@@ -295,16 +409,29 @@ export default function App() {
       <nav style={{
         position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
         width: '100%', maxWidth: 480, height: 84, 
-        background: 'rgba(255, 255, 255, 0.8)',
+        background: 'var(--app-card)',
         backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+        borderTop: '1px solid var(--app-border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         padding: '0 12px 10px', zIndex: 100, 
         borderRadius: '32px 32px 0 0',
         boxShadow: '0 -15px 40px rgba(0,0,0,0.06)'
       }}>
+        {/* Connection Status Indicator */}
+        {!isOnline && (
+          <div style={{ 
+            position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)',
+            background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 900,
+            padding: '4px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 6,
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', animation: 'pulse 1.5s infinite' }} />
+            OFFLINE - DATA SYNC QUEUED
+          </div>
+        )}
+
         {/* Subtle top indicator bar */}
-        <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 36, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.05)' }} />
+        <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 36, height: 4, borderRadius: 2, background: 'var(--app-border)' }} />
 
         {TABS.map((tab) => {
           if (tab.id === 'plus') {

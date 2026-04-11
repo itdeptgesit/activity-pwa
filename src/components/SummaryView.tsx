@@ -8,6 +8,8 @@ import { motion } from 'framer-motion';
 import { Activity, DashboardStats } from '../types';
 import { format, subDays, isSameDay } from 'date-fns';
 
+import ContributionHeatmap from './ContributionHeatmap';
+
 interface SummaryViewProps {
   activities: Activity[];
   stats: DashboardStats;
@@ -43,15 +45,26 @@ export default function SummaryView({ activities, stats }: SummaryViewProps) {
   const busyDay = trendData.reduce((prev, current) => (prev.count > current.count) ? prev : current);
 
   return (
-    <div style={{ padding: '60px 24px 120px', background: '#FAFAFA' }}>
-      <header style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 800, color: '#1E1E1E', letterSpacing: '-0.5px' }}>Activity Summary</h1>
-        <p style={{ fontSize: 13, color: '#94A3B8', marginTop: 4 }}>Analyzing your work patterns and performance</p>
-      </header>
+    <div style={{ padding: '24px 20px 100px', background: 'transparent', minHeight: '100dvh' }}>
+      {/* Fixed Title Header */}
+      <div style={{ 
+        position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', maxWidth: 480, zIndex: 100,
+        background: 'var(--app-header-bg)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        padding: '24px 24px 16px',
+        borderBottom: '1px solid var(--app-border)'
+      }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Activity Summary</h1>
+        <p style={{ fontSize: 13, color: 'var(--app-muted)', marginTop: 4 }}>Analyzing your work patterns and performance</p>
+      </div>
+
+      {/* ── HEATMAP ── */}
+      <ContributionHeatmap activities={activities} />
 
       {/* ── INSIGHTS BENTO ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 32 }}>
-        <div style={{ background: '#0F4C5C', borderRadius: 28, padding: '24px', color: '#fff', gridColumn: '1 / -1' }}>
+        <div style={{ background: '#0F4C5C', borderRadius: 28, padding: '24px', color: '#fff', gridColumn: '1 / -1', boxShadow: '0 10px 20px rgba(15, 76, 92, 0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <Target size={20} color="#10B981" />
             <span style={{ fontSize: 14, fontWeight: 600, opacity: 0.8 }}>Key Insight</span>
@@ -66,38 +79,38 @@ export default function SummaryView({ activities, stats }: SummaryViewProps) {
           </p>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 28, padding: '20px', border: '1px solid #F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+        <div style={{ background: 'var(--app-card)', borderRadius: 28, padding: '20px', border: '1px solid var(--app-border)', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
           <div style={{ color: '#F59E0B', marginBottom: 12 }}><TrendingUp size={24} /></div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Busy Day</p>
-          <p style={{ fontSize: 16, fontWeight: 800, color: '#1E1E1E', marginTop: 4 }}>{format(busyDay.date, 'EEEE')}</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--app-muted)', textTransform: 'uppercase' }}>Busy Day</p>
+          <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--app-text)', marginTop: 4 }}>{format(busyDay.date, 'EEEE')}</p>
         </div>
 
-        <div style={{ background: '#fff', borderRadius: 28, padding: '20px', border: '1px solid #F1F5F9', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+        <div style={{ background: 'var(--app-card)', borderRadius: 28, padding: '20px', border: '1px solid var(--app-border)', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
           <div style={{ color: '#10B981', marginBottom: 12 }}><CheckCircle2 size={24} /></div>
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>Success Rate</p>
-          <p style={{ fontSize: 16, fontWeight: 800, color: '#1E1E1E', marginTop: 4 }}>{completedPercent}% Done</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--app-muted)', textTransform: 'uppercase' }}>Success Rate</p>
+          <p style={{ fontSize: 16, fontWeight: 800, color: 'var(--app-text)', marginTop: 4 }}>{completedPercent}% Done</p>
         </div>
       </div>
 
       {/* ── CATEGORY DISTRIBUTION ── */}
       <section style={{ marginBottom: 40 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1E1E1E' }}>Department Focus</h2>
-          <BarChart2 size={18} color="#94A3B8" />
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--app-text)' }}>Department Focus</h2>
+          <BarChart2 size={18} color="var(--app-muted)" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {sortedCategories.slice(0, 5).map(([cat, count], i) => (
             <div key={cat} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700 }}>
-                <span style={{ color: '#475569' }}>{cat}</span>
-                <span style={{ color: '#1E1E1E' }}>{count} logs</span>
+                <span style={{ color: 'var(--app-muted)' }}>{cat}</span>
+                <span style={{ color: 'var(--app-text)' }}>{count} logs</span>
               </div>
-              <div style={{ height: 8, background: '#F1F5F9', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ height: 8, background: 'var(--app-border)', borderRadius: 4, overflow: 'hidden' }}>
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${(count / maxCatCount) * 100}%` }}
                   transition={{ delay: i * 0.1, duration: 1 }}
-                  style={{ height: '100%', background: i === 0 ? '#1E1E1E' : '#A3C4F3', borderRadius: 4 }} 
+                  style={{ height: '100%', background: i === 0 ? 'var(--app-text)' : '#A3C4F3', borderRadius: 4 }} 
                 />
               </div>
             </div>
@@ -108,12 +121,13 @@ export default function SummaryView({ activities, stats }: SummaryViewProps) {
       {/* ── WEEKLY TREND ── */}
       <section>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1E1E1E' }}>Weekly Volume</h2>
-          <Calendar size={18} color="#94A3B8" />
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--app-text)' }}>Weekly Volume</h2>
+          <Calendar size={18} color="var(--app-muted)" />
         </div>
         <div style={{ 
-          background: '#1E1E1E', borderRadius: 28, padding: '24px', 
-          height: 180, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8 
+          background: 'var(--app-card)', borderRadius: 28, padding: '24px', 
+          height: 180, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 8,
+          border: '1px solid var(--app-border)'
         }}>
           {trendData.map((d, i) => (
             <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -126,7 +140,7 @@ export default function SummaryView({ activities, stats }: SummaryViewProps) {
                   borderRadius: 6, minHeight: 4
                 }} 
               />
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--app-muted)' }}>
                 {format(d.date, 'eee')}
               </span>
             </div>

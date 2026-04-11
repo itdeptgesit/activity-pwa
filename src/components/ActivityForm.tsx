@@ -40,15 +40,15 @@ const STATUS_COLORS: Record<string, { active: string; bg: string; border: string
 
 const inputBase: React.CSSProperties = {
   width: '100%', height: 38, padding: '0 12px',
-  background: '#fff', border: '1px solid #F1F5F9',
-  borderRadius: 12, color: '#1a1a2e', fontSize: 13, fontWeight: 500,
+  background: 'var(--app-bg)', border: '1px solid var(--app-border)',
+  borderRadius: 12, color: 'var(--app-text)', fontSize: 13, fontWeight: 500,
   outline: 'none', transition: 'all 0.2s',
   appearance: 'none',
 };
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: 9, fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3, marginLeft: 2 }}>
+    <p style={{ fontSize: 9, fontWeight: 700, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3, marginLeft: 2 }}>
       {children}
     </p>
   );
@@ -168,11 +168,11 @@ export default function ActivityForm({
 
   const focusStyle = (e: React.FocusEvent<any>) => {
     e.target.style.borderColor = '#f5c842';
-    e.target.style.background = '#fff';
+    e.target.style.background = 'var(--app-card)';
   };
   const blurStyle = (e: React.FocusEvent<any>, hasError?: boolean) => {
-    e.target.style.borderColor = hasError ? '#fca5a5' : '#ebebeb';
-    e.target.style.background = '#fafafa';
+    e.target.style.borderColor = hasError ? '#fca5a5' : 'var(--app-border)';
+    e.target.style.background = 'var(--app-bg)';
   };
 
   return (
@@ -192,11 +192,12 @@ export default function ActivityForm({
               position: 'fixed', bottom: 0,
               left: 0, right: 0, margin: '0 auto',
               width: '100%', maxWidth: 480, zIndex: 1000,
-              background: '#fff',
+              background: 'var(--app-bg)',
               borderRadius: '24px 24px 0 0',
               maxHeight: '94dvh', display: 'flex', flexDirection: 'column',
               boxShadow: '0 -8px 40px rgba(0,0,0,0.15)',
               overflow: 'hidden',
+              color: 'var(--app-text)'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'center', padding: '14px 0 6px' }}>
@@ -205,19 +206,19 @@ export default function ActivityForm({
 
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '6px 20px 16px', borderBottom: '1px solid #f0f0ea',
+              padding: '6px 20px 16px', borderBottom: '1px solid var(--app-border)',
             }}>
               <button onClick={onClose} style={{
-                width: 38, height: 38, borderRadius: 12, border: '1px solid #e8e8e8',
-                background: '#f5f5f0', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: '#9090a0',
+                width: 38, height: 38, borderRadius: 12, border: '1px solid var(--app-border)',
+                background: 'var(--app-card)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--app-muted)',
               }}><X size={18} /></button>
 
               <div style={{ textAlign: 'center' }}>
-                <h2 style={{ fontSize: 16, fontWeight: 800, color: '#1a1a2e', margin: 0 }}>
+                <h2 style={{ fontSize: 16, fontWeight: 800, color: 'var(--app-text)', margin: 0 }}>
                   {initialData ? 'Edit Activity' : 'New Activity'}
                 </h2>
-                <p style={{ fontSize: 11, color: '#9090a0', marginTop: 2 }}>
+                <p style={{ fontSize: 11, color: 'var(--app-muted)', marginTop: 2 }}>
                   {initialData ? 'Update the details' : 'Fill in the details below'}
                 </p>
               </div>
@@ -230,8 +231,8 @@ export default function ActivityForm({
 
                 {/* Main Bento Card: Primary Info */}
                 <div style={{ 
-                  background: '#F8FAFC', borderRadius: 20, padding: '12px 14px', 
-                  border: '1px solid rgba(0,0,0,0.01)',
+                  background: 'var(--app-card)', borderRadius: 20, padding: '12px 14px', 
+                  border: '1px solid var(--app-border)',
                   display: 'flex', flexDirection: 'column', gap: 10
                 }}>
                   <FieldWrap label="Activity Essence" error={errors.activity_name}>
@@ -239,7 +240,7 @@ export default function ActivityForm({
                       type="text" placeholder="What was done?"
                       value={form.activity_name || ''}
                       onChange={e => setForm(p => ({ ...p, activity_name: e.target.value }))}
-                      style={{ ...inputBase, fontSize: 14, fontWeight: 600 }}
+                      style={{ ...inputBase, fontSize: 14, fontWeight: 600, color: 'var(--app-text)' }}
                       onFocus={focusStyle} onBlur={e => blurStyle(e, !!errors.activity_name)}
                     />
                   </FieldWrap>
@@ -261,24 +262,24 @@ export default function ActivityForm({
                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
                             style={{
                               position: 'absolute', top: '110%', left: 0, right: 0,
-                              background: '#fff', borderRadius: 16, boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-                              maxHeight: 200, overflowY: 'auto', zIndex: 110, border: '1px solid #f0f0ea',
+                              background: 'var(--app-card)', borderRadius: 16, boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+                              maxHeight: 200, overflowY: 'auto', zIndex: 110, border: '1px solid var(--app-border)',
                             }}
                           >
                             {filteredUsers.map((user, idx) => (
                               <button key={idx} type="button" onClick={() => handleUserSelect(user)}
                                 style={{
                                   width: '100%', textAlign: 'left', padding: '10px 14px',
-                                  borderBottom: '1px solid #f8f8f8', display: 'flex', gap: 10, alignItems: 'center',
+                                  borderBottom: '1px solid var(--app-border)', display: 'flex', gap: 10, alignItems: 'center',
                                   background: 'none', border: 'none', cursor: 'pointer',
                                 }}
                               >
-                                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1a2e', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
+                                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--app-text)', color: 'var(--app-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>
                                   {user.name.split(' ').map(n => n[0]).join('')}
                                 </div>
                                 <div>
-                                  <p style={{ fontSize: 12, fontWeight: 600, color: '#1a1a2e' }}>{user.name}</p>
-                                  <p style={{ fontSize: 9, color: '#94A3B8' }}>{user.department}</p>
+                                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--app-text)' }}>{user.name}</p>
+                                  <p style={{ fontSize: 9, color: 'var(--app-muted)' }}>{user.department}</p>
                                 </div>
                               </button>
                             ))}
@@ -290,7 +291,7 @@ export default function ActivityForm({
                 </div>
 
                 {/* Secondary Bento Grid: Logistics */}
-                <div style={{ background: '#F8FAFC', borderRadius: 20, padding: '12px 14px', border: '1px solid rgba(0,0,0,0.01)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ background: 'var(--app-card)', borderRadius: 20, padding: '12px 14px', border: '1px solid var(--app-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       <FieldWrap label="Start Date">
                         <input type="date" value={createdAt} onChange={e => setCreatedAt(e.target.value)}
@@ -356,13 +357,13 @@ export default function ActivityForm({
               </div>
             </div>
 
-            <div style={{ padding: '12px 16px 24px', borderTop: '1px solid #f0f0ea', background: '#fff' }}>
+            <div style={{ padding: '12px 16px 24px', borderTop: '1px solid var(--app-border)', background: 'var(--app-bg)' }}>
               <button onClick={handleSubmit} disabled={saving}
                 style={{
                   width: '100%', height: 48, borderRadius: 16, border: 'none',
-                  background: '#1a1a2e', color: '#fff', fontSize: 14, fontWeight: 800,
+                  background: 'var(--app-text)', color: 'var(--app-bg)', fontSize: 14, fontWeight: 800,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  boxShadow: '0 8px 30px rgba(26,26,46,0.2)',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
                   opacity: saving ? 0.7 : 1, cursor: saving ? 'not-allowed' : 'pointer',
                 }}
               >

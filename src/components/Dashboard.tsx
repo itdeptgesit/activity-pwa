@@ -95,21 +95,22 @@ function BentoGrid({ stats, currentActivity, activities, onViewAll, onViewActivi
         whileTap={{ scale: 0.96 }}
         onClick={() => onNavigateWithFilter('journey', 'Today')}
         style={{
-          background: '#1E1E1E', borderRadius: 32, padding: '24px',
-          color: '#fff', display: 'flex', flexDirection: 'column', cursor: 'pointer'
+          background: 'var(--app-card)', borderRadius: 32, padding: '24px',
+          color: 'var(--app-text)', display: 'flex', flexDirection: 'column', cursor: 'pointer',
+          border: '1px solid var(--app-border)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <div style={{ background: 'rgba(255,255,255,0.1)', padding: 6, borderRadius: '50%' }}>
+          <div style={{ background: 'var(--app-bg)', padding: 6, borderRadius: '50%' }}>
             <CheckCircle2 size={16} color="#10B981" />
           </div>
           <span style={{ fontSize: 13, fontWeight: 600 }}>Daily Goal</span>
         </div>
         <div style={{ marginBottom: 12 }}>
           <span style={{ fontSize: 26, fontWeight: 800 }}>{progressPercent}%</span>
-          <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{completedToday} of {totalToday} tasks</p>
+          <p style={{ fontSize: 11, color: 'var(--app-muted)', marginTop: 2 }}>{completedToday} of {totalToday} tasks</p>
         </div>
-        <div style={{ height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ height: 6, background: 'var(--app-bg)', borderRadius: 3, overflow: 'hidden' }}>
           <motion.div initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }} style={{ height: '100%', background: '#10B981', borderRadius: 3 }} />
         </div>
       </motion.div>
@@ -144,9 +145,9 @@ function QuickLogCards({ activities, onViewAll, onViewActivity }: { activities: 
   return (
     <div style={{ marginBottom: 32 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, padding: '0 4px' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#1E1E1E', letterSpacing: '-0.3px' }}>Recent Logs</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.3px' }}>Recent Logs</h2>
         <button onClick={onViewAll} style={{
-          fontSize: 13, fontWeight: 700, color: '#0F4C5C',
+          fontSize: 13, fontWeight: 700, color: '#10B981',
           background: 'none', border: 'none', cursor: 'pointer'
         }}>
           See All
@@ -202,7 +203,7 @@ function QuickLogCards({ activities, onViewAll, onViewActivity }: { activities: 
             );
           })
         ) : (
-          <div style={{ background: '#F0F3F5', borderRadius: 28, padding: '30px', textAlign: 'center', color: '#94A3B8' }}>
+          <div style={{ background: 'var(--app-card)', borderRadius: 28, padding: '30px', textAlign: 'center', color: 'var(--app-muted)', border: '1px solid var(--app-border)' }}>
             <ClipboardList size={28} style={{ margin: '0 auto 12px' }} />
             <p style={{ fontWeight: 600 }}>No recent logs.</p>
           </div>
@@ -245,17 +246,17 @@ export default function Dashboard({ user, stats, recentActivities, onViewAll, on
   }
 
   return (
-    <div style={{ paddingBottom: 100, background: '#FAFAFA', minHeight: '100dvh' }}>
+    <div style={{ paddingBottom: 100, background: 'transparent', minHeight: '100dvh' }}>
       {/* ── STICKY HEADER ── */}
       <div style={{ 
         position: 'sticky', 
         top: 0, 
         zIndex: 100, 
-        background: 'rgba(250, 250, 250, 0.85)', 
-        backdropFilter: 'blur(16px)', 
-        WebkitBackdropFilter: 'blur(16px)',
+        background: 'var(--app-header-bg)', 
+        backdropFilter: 'blur(20px)', 
+        WebkitBackdropFilter: 'blur(20px)',
         padding: '12px 24px 20px',
-        borderBottom: '1px solid rgba(0,0,0,0.03)'
+        borderBottom: '1px solid var(--app-border)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
@@ -265,20 +266,20 @@ export default function Dashboard({ user, stats, recentActivities, onViewAll, on
                 {greeting}
               </span>
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 800, color: '#1E1E1E', letterSpacing: '-0.7px', lineHeight: 1.1 }}>
+            <h1 style={{ fontSize: 26, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.7px', lineHeight: 1.1 }}>
               Hello, {user?.fullName ? user.fullName.split(' ')[0] : 'Rudi'} 
             </h1>
-            <p style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', marginTop: 4 }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--app-muted)', marginTop: 4 }}>
               {dateStr}
             </p>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <div style={{
-              width: 52, height: 52, borderRadius: '50%', background: '#E2E8F0',
+              width: 52, height: 52, borderRadius: '50%', background: 'var(--app-card)',
               overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '2px solid #fff', boxShadow: '0 8px 16px rgba(0,0,0,0.08)',
-              color: '#1E1E1E', fontSize: 20, fontWeight: 700
+              border: '2px solid var(--app-card)', boxShadow: '0 8px 16px rgba(0,0,0,0.08)',
+              color: 'var(--app-text)', fontSize: 20, fontWeight: 700
             }}>
               {user?.avatarUrl ? (
                 <img src={user.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

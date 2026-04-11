@@ -36,7 +36,7 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
       <div style={{
         position: 'fixed', inset: 0, zIndex: 1000,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px', background: 'rgba(255, 255, 255, 0.4)',
+        padding: '20px', background: 'transparent',
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
       }}>
         {/* Backdrop for closing */}
@@ -45,7 +45,7 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.1)' }}
+          style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }}
         />
 
         <motion.div
@@ -55,11 +55,12 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           style={{
             width: '100%', maxWidth: 440, maxHeight: '85vh',
-            background: 'rgba(255, 255, 255, 0.9)', 
+            background: 'var(--app-card)', 
             borderRadius: 32, position: 'relative', overflow: 'hidden', 
             display: 'flex', flexDirection: 'column',
-            boxShadow: '0 30px 60px rgba(0,0,0,0.12)',
-            border: '1px solid rgba(255,255,255,0.5)'
+            boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
+            border: '1px solid var(--app-border)',
+            color: 'var(--app-text)'
           }}
         >
           {/* Header */}
@@ -75,21 +76,21 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
               <button 
                 onClick={onClose}
                 style={{ 
-                   width: 32, height: 32, borderRadius: '50%', background: '#F1F5F9',
-                   border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' 
+                   width: 32, height: 32, borderRadius: '50%', background: 'var(--app-bg)',
+                   border: '1px solid var(--app-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' 
                 }}
               >
-                <X size={16} color="#64748B" />
+                <X size={16} color="var(--app-muted)" />
               </button>
             </div>
 
-            <h2 style={{ fontSize: 26, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.15, marginBottom: 12 }}>
+            <h2 style={{ fontSize: 26, fontWeight: 700, color: 'var(--app-text)', lineHeight: 1.15, marginBottom: 12 }}>
               {activity.activity_name}
             </h2>
             
             <div style={{ display: 'flex', gap: 16 }}>
                <StatusBadge label={activity.status} color={activity.status === 'Completed' ? '#10B981' : '#F59E0B'} />
-               <StatusBadge label={activity.duration || 'Flexible'} color="#64748B" icon={<Clock size={10} />} />
+               <StatusBadge label={activity.duration || 'Flexible'} color="var(--app-muted)" icon={<Clock size={10} />} />
             </div>
           </div>
 
@@ -109,11 +110,11 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
             {/* Content Area */}
             <div style={{ position: 'relative' }}>
                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                  <h3 style={{ fontSize: 11, fontWeight: 700, color: '#1a1a2e', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</h3>
+                  <h3 style={{ fontSize: 11, fontWeight: 700, color: 'var(--app-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description</h3>
                </div>
                <div style={{ 
-                 background: '#F8FAFC', padding: '24px', borderRadius: 24, 
-                 border: '1px solid #F1F5F9', color: '#475569', fontSize: 14, 
+                 background: 'var(--app-bg)', padding: '24px', borderRadius: 24, 
+                 border: '1px solid var(--app-border)', color: 'var(--app-muted)', fontSize: 14, 
                  lineHeight: 1.6, fontWeight: 500, whiteSpace: 'pre-wrap'
                }}>
                  {activity.remarks || 'No detailed description provided.'}
@@ -122,14 +123,14 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
           </div>
 
           {/* Footer Actions */}
-          <div style={{ padding: '20px 28px 32px', background: 'rgba(255,255,255,0.7)', borderTop: '1px solid #F1F5F9', display: 'flex', gap: 12 }}>
+          <div style={{ padding: '20px 28px 32px', background: 'transparent', borderTop: '1px solid var(--app-border)', display: 'flex', gap: 12 }}>
              <motion.button 
                whileTap={{ scale: 0.97 }}
                onClick={() => { onEdit(activity); onClose(); }}
                style={{ 
-                 flex: 1, height: 52, borderRadius: 16, background: '#1a1a2e', color: '#fff',
+                 flex: 1, height: 52, borderRadius: 16, background: 'var(--app-text)', color: 'var(--app-bg)',
                  border: 'none', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer',
-                 boxShadow: '0 10px 25px rgba(26,26,46,0.15)'
+                 boxShadow: '0 10px 25px rgba(0,0,0,0.15)'
                }}
              >
                <Pencil size={16} />
@@ -167,11 +168,11 @@ function StatusBadge({ label, color, icon }: { label: string, color: string, ico
 function MinimalDetailItem({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94A3B8' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--app-muted)' }}>
         {icon}
         <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</span>
       </div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e', paddingLeft: 2 }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--app-text)', paddingLeft: 2 }}>
         {value || '—'}
       </div>
     </div>

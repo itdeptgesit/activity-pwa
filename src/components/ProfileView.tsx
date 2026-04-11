@@ -14,6 +14,8 @@ interface ProfileViewProps {
   user: UserAccount | null;
   onUpdateSuccess?: () => void;
   activities: Activity[];
+  theme: 'light' | 'dark';
+  onThemeToggle: () => void;
 }
 
 // ── CUSTOM COMPONENTS (SHADCN ALTERNATIVES) ──────────────────────────
@@ -21,10 +23,11 @@ interface ProfileViewProps {
 function Card({ children, className = "", style = {} }: { children: React.ReactNode, className?: string, style?: React.CSSProperties }) {
   return (
     <div style={{
-      background: '#fff', borderRadius: 28, 
+      background: 'var(--app-card)', borderRadius: 28, 
       boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
-      border: '1px solid rgba(0,0,0,0.03)',
+      border: '1px solid var(--app-border)',
       overflow: 'hidden',
+      color: 'var(--app-text)',
       ...style
     }} className={className}>
       {children}
@@ -35,8 +38,8 @@ function Card({ children, className = "", style = {} }: { children: React.ReactN
 function SectionTitle({ title, sub }: { title: string, sub: string }) {
   return (
     <div style={{ marginBottom: 28 }}>
-      <h3 style={{ fontSize: 20, fontWeight: 800, color: '#1a1a2e', marginBottom: 6, letterSpacing: '-0.4px' }}>{title}</h3>
-      <p style={{ fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{sub}</p>
+      <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--app-text)', marginBottom: 6, letterSpacing: '-0.4px' }}>{title}</h3>
+      <p style={{ fontSize: 13, color: 'var(--app-muted)', fontWeight: 600 }}>{sub}</p>
     </div>
   );
 }
@@ -47,7 +50,7 @@ function Separator() {
 
 // ── MAIN VIEW ────────────────────────────────────────────────────────
 
-export default function ProfileView({ onLogout, user, onUpdateSuccess, activities }: ProfileViewProps) {
+export default function ProfileView({ onLogout, user, onUpdateSuccess, activities, theme, onThemeToggle }: ProfileViewProps) {
   const [activeTab, setActiveTab] = useState<'personal' | 'account' | 'security' | 'notifications'>('personal');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -108,7 +111,20 @@ export default function ProfileView({ onLogout, user, onUpdateSuccess, activitie
   ];
 
   return (
-    <div style={{ padding: '24px 20px 100px' }}>
+    <div style={{ padding: '24px 20px 100px', background: 'transparent' }}>
+      
+      {/* ── STICKY HEADER ── */}
+      <div style={{ 
+        position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', maxWidth: 480, zIndex: 100,
+        background: 'var(--app-header-bg)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        padding: '24px 24px 16px',
+        borderBottom: '1px solid var(--app-border)'
+      }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Profile Settings</h1>
+      </div>
+
       {/* 1. Header Identity Card (Bento Hero) */}
       <div style={{ 
         background: 'linear-gradient(165deg, #0F172A, #1E293B)', borderRadius: 32, 
@@ -258,6 +274,29 @@ export default function ProfileView({ onLogout, user, onUpdateSuccess, activitie
           <motion.div key="account" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
             <Card>
               <div style={{ padding: 24 }}>
+                <SectionTitle title="Appearance" sub="Personalize your UI theme" />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0' }}>
+                   <div>
+                     <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--app-text)' }}>Dark Mode</p>
+                     <p style={{ fontSize: 11, color: 'var(--app-muted)' }}>Currently {theme === 'dark' ? 'enabled' : 'disabled'}</p>
+                   </div>
+                   <div 
+                    onClick={onThemeToggle}
+                    style={{ 
+                      width: 44, height: 24, 
+                      background: theme === 'dark' ? '#10B981' : '#E2E8F0', 
+                      borderRadius: 20, position: 'relative', cursor: 'pointer',
+                      transition: 'background 0.3s'
+                    }}>
+                      <motion.div 
+                        animate={{ x: theme === 'dark' ? 22 : 2 }}
+                        style={{ position: 'absolute', top: 3, width: 18, height: 18, background: '#fff', borderRadius: '50%', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} 
+                      />
+                   </div>
+                </div>
+
+                <Separator />
+
                 <SectionTitle title="Account Status" sub="Manage your visibility and data" />
                 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0' }}>

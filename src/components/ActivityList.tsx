@@ -2,14 +2,14 @@ import React, { useState, useMemo } from "react";
 import { Activity } from "../types";
 import { format, isToday, isAfter, subDays, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Search, Pencil, Trash2, User, 
+import {
+  Search, Pencil, Trash2, User,
   ClipboardList, ChevronLeft, ChevronRight
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { 
-  Wrench, Settings, Network, LifeBuoy, Code, 
-  PenTool, ShoppingCart 
+import {
+  Wrench, Settings, Network, LifeBuoy, Code,
+  PenTool, ShoppingCart
 } from "lucide-react";
 
 export type LogFilter = 'All' | 'Today' | 'Week' | 'Month' | 'In Progress' | 'Critical';
@@ -28,19 +28,19 @@ interface Props {
 }
 
 const CATEGORY_ICON: Record<string, LucideIcon> = {
-  'Troubleshooting':           Wrench,
-  'Maintenance':               Settings,
-  'Infrastructure & Network':  Network,
-  'Technical Support':         LifeBuoy,
-  'Web Development':           Code,
-  'Creative & Design':         PenTool,
-  'Procurement & Assets':      ShoppingCart,
-  'Other':                     ClipboardList,
+  'Troubleshooting': Wrench,
+  'Maintenance': Settings,
+  'Infrastructure & Network': Network,
+  'Technical Support': LifeBuoy,
+  'Web Development': Code,
+  'Creative & Design': PenTool,
+  'Procurement & Assets': ShoppingCart,
+  'Other': ClipboardList,
 };
 
-export default function ActivityList({ 
+export default function ActivityList({
   activities, searchQuery, onSearchChange, onEdit, onDelete, onViewDetail,
-  canEdit = true, canDelete = true, activeFilter, onFilterChange 
+  canEdit = true, canDelete = true, activeFilter, onFilterChange
 }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -76,21 +76,28 @@ export default function ActivityList({
   };
 
   return (
-    <div style={{ padding: '52px 20px 120px', fontFamily: "'Poppins', sans-serif" }}>
+    <div style={{ padding: '240px 20px 120px', fontFamily: "'Poppins', sans-serif" }}>
 
-      {/* Header Section */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ marginBottom: 24 }}>
-          <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1a1a2e', letterSpacing: '-0.5px' }}>Activity Logs</h2>
-          <p style={{ fontSize: 13, fontWeight: 500, color: '#94A3B8', marginTop: 4 }}>
+      {/* Fixed Header Section */}
+      <div style={{
+        position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)',
+        width: '100%', maxWidth: 480, zIndex: 100,
+        background: 'var(--app-header-bg)',
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        padding: '24px 20px 24px',
+        borderBottom: '1px solid var(--app-border)'
+      }}>
+        <div style={{ marginBottom: 20 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--app-text)', letterSpacing: '-0.5px' }}>Activity Logs</h2>
+          <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--app-muted)', marginTop: 4 }}>
             Showing {filteredActivities.length} entries {activeFilter !== 'All' && `for ${activeFilter}`}
           </p>
         </div>
 
         {/* Filter Tabs */}
-        <div style={{ 
-          display: 'flex', gap: 8, marginBottom: 24, 
-          overflowX: 'auto', paddingBottom: 8, 
+        <div style={{
+          display: 'flex', gap: 8, marginBottom: 20,
+          overflowX: 'auto', paddingBottom: 4,
           scrollbarWidth: 'none', msOverflowStyle: 'none',
           WebkitOverflowScrolling: 'touch'
         }}>
@@ -99,13 +106,14 @@ export default function ActivityList({
               key={f}
               onClick={() => handleFilterChange(f)}
               style={{
-                padding: '10px 18px', borderRadius: 14, border: 'none',
-                background: activeFilter === f ? '#1a1a2e' : '#fff',
-                color: activeFilter === f ? '#fff' : '#64748b',
+                padding: '10px 18px', borderRadius: 14,
+                background: activeFilter === f ? 'var(--app-text)' : 'var(--app-card)',
+                color: activeFilter === f ? 'var(--app-bg)' : 'var(--app-muted)',
                 fontSize: 13, fontWeight: 600, cursor: 'pointer',
                 boxShadow: activeFilter === f ? '0 8px 16px rgba(26,26,46,0.15)' : '0 2px 8px rgba(0,0,0,0.02)',
                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                border: activeFilter === f ? 'none' : '1px solid var(--app-border)'
               }}
             >
               {f}
@@ -115,7 +123,7 @@ export default function ActivityList({
 
         {/* Search Bar */}
         <div style={{ position: 'relative' }}>
-          <Search size={16} color="#94A3B8" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={16} color="var(--app-muted)" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
           <input
             type="text"
             placeholder="Search documents or personnel..."
@@ -124,13 +132,13 @@ export default function ActivityList({
             style={{
               width: '100%', height: 48,
               paddingLeft: 44, paddingRight: 16,
-              background: '#fff', border: '1.5px solid #F1F5F9',
-              borderRadius: 16, color: '#1a1a2e',
+              background: 'var(--app-card)', border: '1.5px solid var(--app-border)',
+              borderRadius: 16, color: 'var(--app-text)',
               fontSize: 14, fontWeight: 500, outline: 'none',
               transition: 'all 0.2s',
             }}
-            onFocus={e => e.target.style.borderColor = '#1a1a2e'}
-            onBlur={e => e.target.style.borderColor = '#F1F5F9'}
+            onFocus={e => e.target.style.borderColor = '#10B981'}
+            onBlur={e => e.target.style.borderColor = 'var(--app-border)'}
           />
         </div>
       </div>
@@ -138,7 +146,7 @@ export default function ActivityList({
       {/* Empty State */}
       <AnimatePresence mode="wait">
         {paginatedItems.length === 0 ? (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{ textAlign: 'center', padding: '80px 24px' }}
           >
@@ -147,7 +155,7 @@ export default function ActivityList({
               background: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
               margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-               <ClipboardList size={28} color="#CBD5E1" />
+              <ClipboardList size={28} color="#CBD5E1" />
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a2e', marginBottom: 8 }}>No logs found</h3>
             <p style={{ fontSize: 13, color: '#94A3B8', fontWeight: 500 }}>Try adjusting your filters or search keywords</p>
@@ -162,6 +170,7 @@ export default function ActivityList({
               const textColor = textColors[index % textColors.length];
 
               return (
+
                 <motion.div
                   key={activity.id}
                   layout
@@ -171,35 +180,38 @@ export default function ActivityList({
                   onClick={() => onViewDetail(activity)}
                   transition={{ duration: 0.2 }}
                   style={{
-                    background: bentoBg, borderRadius: 28, padding: '20px',
+                    background: 'var(--app-card)', borderRadius: 28, padding: '20px',
                     display: 'flex', flexDirection: 'column', gap: 14,
-                    position: 'relative', overflow: 'hidden', cursor: 'pointer'
+                    position: 'relative', overflow: 'hidden', cursor: 'pointer',
+                    border: '1px solid var(--app-border)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
                   }}
                 >
-                  <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: 0.12, pointerEvents: 'none' }}>
-                    <IconComp size={88} color={textColor} strokeWidth={1.5} />
+                  <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: 0.08, pointerEvents: 'none', color: 'var(--app-text)' }}>
+                    <IconComp size={88} strokeWidth={1.5} />
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', gap: 5, marginBottom: 8 }}>
-                        <span style={{ 
-                          fontSize: 9, fontWeight: 700, color: '#fff', background: activity.status === 'Completed' ? '#10B981' : '#F59E0B', 
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, color: '#fff', background: activity.status === 'Completed' ? '#10B981' : '#F59E0B',
                           padding: '2px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em'
                         }}>
                           {activity.status}
                         </span>
-                        <span style={{ 
-                          fontSize: 9, fontWeight: 700, color: textColor, background: 'rgba(255,255,255,0.4)',
-                          padding: '2px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em'
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, color: 'var(--app-muted)', background: 'var(--app-bg)',
+                          padding: '2px 8px', borderRadius: 8, textTransform: 'uppercase', letterSpacing: '0.05em',
+                          border: '1px solid var(--app-border)'
                         }}>
                           {activity.type}
                         </span>
                       </div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a2e', lineHeight: 1.3, marginBottom: 4 }}>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--app-text)', lineHeight: 1.3, marginBottom: 4 }}>
                         {activity.activity_name}
                       </h3>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, opacity: 0.6, fontSize: 11, fontWeight: 500, color: '#1a1a2e' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, opacity: 0.7, fontSize: 11, fontWeight: 500, color: 'var(--app-muted)' }}>
                         <span>{activity.category}</span>
                         <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'currentColor' }} />
                         <span>{activity.created_at ? format(new Date(activity.created_at), 'd MMM') : '—'}</span>
@@ -209,31 +221,34 @@ export default function ActivityList({
                     <div style={{ display: 'flex', gap: 4 }}>
                       {canEdit && (
                         <button onClick={(e) => { e.stopPropagation(); onEdit(activity); }} style={{
-                          width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.5)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer'
+                          width: 32, height: 32, borderRadius: 10, background: 'var(--app-bg)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--app-border)', cursor: 'pointer',
+                          color: 'var(--app-muted)'
                         }}>
-                          <Pencil size={15} color="#1a1a2e" />
+                          <Pencil size={14} />
                         </button>
                       )}
                       {canDelete && (
                         <button onClick={(e) => { e.stopPropagation(); activity.id && onDelete(activity.id); }} style={{
-                          width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.5)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer'
+                          width: 32, height: 32, borderRadius: 10, background: '#fef2f2',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #fee2e2', cursor: 'pointer',
+                          color: '#dc2626'
                         }}>
-                          <Trash2 size={15} color="#dc2626" />
+                          <Trash2 size={14} />
                         </button>
                       )}
                     </div>
                   </div>
 
-                  <div style={{ 
-                    alignSelf: 'flex-start', padding: '5px 10px', background: 'rgba(255,255,255,0.5)', 
-                    borderRadius: 12, display: 'flex', alignItems: 'center', gap: 6, position: 'relative', zIndex: 1
+                  <div style={{
+                    alignSelf: 'flex-start', padding: '5px 10px', background: 'var(--app-bg)',
+                    borderRadius: 12, display: 'flex', alignItems: 'center', gap: 6, position: 'relative', zIndex: 1,
+                    border: '1px solid var(--app-border)'
                   }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: textColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <User size={10} color="#fff" />
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--app-text)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-bg)', fontSize: 10, fontWeight: 800 }}>
+                      {activity.it_personnel ? activity.it_personnel[0].toUpperCase() : 'U'}
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: 600, color: '#1a1a2e' }}>{activity.it_personnel || 'IT Admin'}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--app-text)' }}>{activity.it_personnel || 'IT Admin'}</span>
                   </div>
                 </motion.div>
               );
@@ -244,11 +259,11 @@ export default function ActivityList({
 
       {/* Pagination Footer */}
       {totalPages > 1 && (
-        <div style={{ 
+        <div style={{
           marginTop: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14,
           padding: '10px 0'
         }}>
-          <button 
+          <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage(p => p - 1)}
             style={{
@@ -260,15 +275,15 @@ export default function ActivityList({
           >
             <ChevronLeft size={18} />
           </button>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {(() => {
               const pages = [];
               const showMax = 3; // Show current, one before, one after
-              
+
               let startPage = Math.max(1, currentPage - 1);
               let endPage = Math.min(totalPages, startPage + showMax - 1);
-              
+
               if (endPage - startPage < showMax - 1) {
                 startPage = Math.max(1, endPage - showMax + 1);
               }
@@ -282,9 +297,9 @@ export default function ActivityList({
 
               for (let i = startPage; i <= endPage; i++) {
                 pages.push(
-                  <button 
-                    key={i} 
-                    onClick={() => setCurrentPage(i)} 
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(i)}
                     style={pageBtnStyle(currentPage === i)}
                   >
                     {i}
@@ -305,7 +320,7 @@ export default function ActivityList({
             })()}
           </div>
 
-          <button 
+          <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage(p => p + 1)}
             style={{
