@@ -92,7 +92,8 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
   return (
     <div style={{
       minHeight: '100dvh', display: 'flex', flexDirection: 'column',
-      background: 'var(--app-bg)', padding: '24px', position: 'relative',
+      background: 'radial-gradient(120% 100% at 80% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 52%), var(--app-bg)',
+      padding: 'calc(20px + env(safe-area-inset-top, 0px)) 24px calc(20px + env(safe-area-inset-bottom, 0px))', position: 'relative',
       overflow: 'hidden', fontFamily: "'Poppins', sans-serif"
     }}>
       {/* ── SOFT AMBIENT ORBS ── */}
@@ -166,15 +167,23 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.98 }}
                 style={{
-                  background: 'var(--app-card)', backdropFilter: 'blur(32px)',
+                  background: 'color-mix(in srgb, var(--app-card) 88%, transparent)', backdropFilter: 'blur(32px)',
                   WebkitBackdropFilter: 'blur(32px)',
-                  borderRadius: 32, padding: '40px 28px',
+                  borderRadius: 30, padding: '34px 24px',
                   border: '1px solid var(--app-border)',
-                  boxShadow: '0 30px 60px -12px rgba(0,0,0,0.1)'
+                  boxShadow: '0 24px 50px -12px rgba(0,0,0,0.18)'
                 }}
               >
                 <div style={{ marginBottom: 32 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+                    <div style={{
+                      fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase',
+                      color: 'var(--accent)', background: 'color-mix(in srgb, var(--accent) 14%, transparent)',
+                      border: '1px solid color-mix(in srgb, var(--accent) 34%, transparent)',
+                      padding: '6px 12px', borderRadius: 999
+                    }}>
+                      IT Operations Portal
+                    </div>
                     <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <img
                         src="https://it.gesit.co.id/image/logo.png"
@@ -221,9 +230,10 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                         required
                         style={{
                           width: '100%', height: 50, padding: '0 16px 0 42px',
-                          background: 'var(--app-bg)', border: '1.5px solid var(--app-border)',
+                          background: 'color-mix(in srgb, var(--app-bg) 90%, var(--app-card) 10%)', border: '1.5px solid var(--app-border)',
                           borderRadius: 14, fontSize: 14, fontWeight: 600, color: 'var(--app-text)', outline: 'none',
-                          transition: 'all 0.2s'
+                          transition: 'all 0.2s',
+                          boxShadow: 'inset 0 1px 0 color-mix(in srgb, var(--app-border) 70%, transparent)'
                         }}
                       />
                     </div>
@@ -244,9 +254,10 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                           required
                           style={{
                             width: '100%', height: 50, padding: '0 42px',
-                            background: 'var(--app-bg)', border: '1.5px solid var(--app-border)',
+                            background: 'color-mix(in srgb, var(--app-bg) 90%, var(--app-card) 10%)', border: '1.5px solid var(--app-border)',
                             borderRadius: 14, fontSize: 14, fontWeight: 600, color: 'var(--app-text)', outline: 'none',
-                            transition: 'all 0.2s'
+                            transition: 'all 0.2s',
+                            boxShadow: 'inset 0 1px 0 color-mix(in srgb, var(--app-border) 70%, transparent)'
                           }}
                         />
                         <button
@@ -267,9 +278,10 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                     disabled={isLoading}
                     style={{
                       width: '100%', height: 52, borderRadius: 16, border: 'none',
-                      background: 'var(--app-text)', color: 'var(--app-bg)', fontSize: 14, fontWeight: 800,
+                      background: 'linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #4338ca 40%))',
+                      color: '#fff', fontSize: 14, fontWeight: 800,
                       cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      gap: 10, marginTop: 8, boxShadow: '0 12px 25px rgba(0,0,0,0.15)'
+                      gap: 10, marginTop: 8, boxShadow: '0 12px 28px color-mix(in srgb, var(--accent) 30%, transparent)'
                     }}
                   >
                     {isLoading ? <Loader2 size={20} className="animate-spin" /> : (isResetMode ? 'Send Reset Link' : 'Sign In')}
@@ -291,13 +303,13 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                       disabled={isLoading}
                       style={{
                         width: '100%', height: 52, borderRadius: 16, 
-                        background: '#fff', border: '1.5px solid #F1F5F9',
+                        background: 'var(--app-card)', border: '1.5px solid var(--app-border)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         gap: 12, cursor: 'pointer', transition: 'all 0.2s',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
                       }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = '#CBD5E1'; }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = '#F1F5F9'; }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent) 40%, var(--app-border))'; }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--app-border)'; }}
                     >
                       <svg width="20" height="20" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -305,7 +317,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                         <path d="M5.84 14.09c-.22-.67-.35-1.39-.35-2.09s.13-1.42.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                       </svg>
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>Google</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--app-text)' }}>Google</span>
                     </motion.button>
                   </>
                 )}
@@ -313,7 +325,7 @@ export default function LoginView({ onLoginSuccess }: LoginViewProps) {
                 <div style={{ textAlign: 'center', marginTop: 24 }}>
                   <button
                     onClick={() => setIsResetMode(!isResetMode)}
-                    style={{ background: 'none', border: 'none', fontSize: 13, fontWeight: 600, color: '#6366F1', cursor: 'pointer' }}
+                    style={{ background: 'none', border: 'none', fontSize: 13, fontWeight: 700, color: 'var(--accent)', cursor: 'pointer' }}
                   >
                     {isResetMode ? 'Back to sign in' : 'Forgot password?'}
                   </button>

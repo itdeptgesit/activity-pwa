@@ -328,6 +328,33 @@ export default function App() {
     await supabase.auth.signOut();
   };
 
+  const handleUpdateUser = async (data: Partial<UserAccount>) => {
+    if (!currentUser) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_accounts')
+        .update({
+          full_name: data.fullName,
+          phone: data.phone,
+          address: data.address,
+          company: data.company,
+          department: data.department,
+          job_title: data.jobTitle,
+          avatar_url: data.avatarUrl,
+        })
+        .eq('email', currentUser.email);
+
+      if (error) throw error;
+      
+      // Update local state
+      setCurrentUser(prev => prev ? { ...prev, ...data } : null);
+    } catch (e) {
+      console.error('Error updating user:', e);
+      throw e;
+    }
+  };
+
   const handleNavigateWithFilter = (tab: 'journey', filter: LogFilter) => {
     setActiveLogFilter(filter);
     setActiveTab(tab);
@@ -355,20 +382,38 @@ export default function App() {
     a.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const HomeSkeleton = () => (
+    <div style={{ padding: '24px 24px 100px' }}>
+      <div className="skeleton-shimmer" style={{ height: 88, borderRadius: 24, marginBottom: 16, border: '1px solid var(--app-border)' }} />
+      <div className="skeleton-shimmer" style={{ height: 170, borderRadius: 24, marginBottom: 14, border: '1px solid var(--app-border)' }} />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 20 }}>
+        <div className="skeleton-shimmer" style={{ height: 150, borderRadius: 24, border: '1px solid var(--app-border)' }} />
+        <div className="skeleton-shimmer" style={{ height: 150, borderRadius: 24, border: '1px solid var(--app-border)' }} />
+      </div>
+      <div className="skeleton-shimmer" style={{ height: 130, borderRadius: 24, marginBottom: 12, border: '1px solid var(--app-border)' }} />
+      <div className="skeleton-shimmer" style={{ height: 130, borderRadius: 24, marginBottom: 12, border: '1px solid var(--app-border)' }} />
+    </div>
+  );
+
   return (
     <div style={{ 
       background: 'var(--app-bg)', color: 'var(--app-text)',
       minHeight: '100dvh', maxWidth: 480, margin: '0 auto', position: 'relative',
+      width: '100%',
       transition: 'background 0.3s, color 0.3s'
     }}>
 
       {/* ── MAIN ── */}
-      <main style={{ paddingBottom: 110 }}>
+      <main style={{ paddingBottom: 'calc(118px + env(safe-area-inset-bottom, 0px))' }}>
         {loading && activities.length === 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100dvh', gap: 14 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(245,200,66,0.3)', borderTopColor: '#f5c842', animation: 'spin 0.8s linear infinite' }} />
-            <p style={{ fontSize: 13, color: '#a0a0b0', fontWeight: 600 }}>Loading...</p>
-          </div>
+          activeTab === 'home' ? (
+            <HomeSkeleton />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100dvh', gap: 14 }}>
+              <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(245,200,66,0.3)', borderTopColor: '#f5c842', animation: 'spin 0.8s linear infinite' }} />
+              <p style={{ fontSize: 13, color: '#a0a0b0', fontWeight: 600 }}>Loading...</p>
+            </div>
+          )
         ) : (
           <AnimatePresence mode="wait">
             {activeTab === 'home' && (
@@ -404,6 +449,7 @@ export default function App() {
                   canDelete={canDelete}
                   activeFilter={activeLogFilter}
                   onFilterChange={setActiveLogFilter}
+                  theme={theme}
                 />
               </motion.div>
             )}
@@ -413,6 +459,7 @@ export default function App() {
                   <ProfileView 
                     user={currentUser} 
                     onLogout={handleLogout} 
+                    onUpdateUser={handleUpdateUser}
                     activities={activities} 
                     theme={theme}
                     onThemeToggle={handleThemeToggle}
@@ -428,33 +475,35 @@ export default function App() {
         )}
       </main>
 
-      {/* ── NAVIGATION ── */}
+      {/* ── NAVIGATION (High-End Pro) ── */}
       <nav style={{
-        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-        width: '100%', maxWidth: 480, height: 84, 
-        background: 'var(--app-card)',
-        backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-        borderTop: '1px solid var(--app-border)',
+        position: 'fixed', bottom: 'calc(12px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)',
+        width: 'calc(100% - 24px)', maxWidth: 456, height: 74,
+        background: theme === 'dark'
+          ? 'linear-gradient(180deg, rgba(30, 30, 36, 0.78), rgba(10, 10, 14, 0.7))'
+          : 'linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.68))',
+        backdropFilter: 'blur(30px) saturate(150%)',
+        WebkitBackdropFilter: 'blur(30px) saturate(150%)',
+        border: theme === 'dark' ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.68)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-around',
-        padding: '0 12px 10px', zIndex: 100, 
-        borderRadius: '32px 32px 0 0',
-        boxShadow: '0 -15px 40px rgba(0,0,0,0.06)'
+        padding: '8px 10px', zIndex: 100,
+        borderRadius: 22,
+        boxShadow: theme === 'dark'
+          ? '0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)'
+          : '0 10px 26px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.9)'
       }}>
         {/* Connection Status Indicator */}
         {!isOnline && (
           <div style={{ 
-            position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)',
-            background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 900,
+            position: 'absolute', top: -28, left: '50%', transform: 'translateX(-50%)',
+            background: '#F87171', color: '#fff', fontSize: 9, fontWeight: 900,
             padding: '4px 12px', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 6,
-            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+            boxShadow: '0 4px 12px rgba(248, 113, 113, 0.3)'
           }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', animation: 'pulse 1.5s infinite' }} />
-            OFFLINE - DATA SYNC QUEUED
+            OFFLINE MODE
           </div>
         )}
-
-        {/* Subtle top indicator bar */}
-        <div style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', width: 36, height: 4, borderRadius: 2, background: 'var(--app-border)' }} />
 
         {TABS.map((tab) => {
           if (tab.id === 'plus') {
@@ -465,16 +514,14 @@ export default function App() {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsFormOpen(true)} 
                 style={{
-                  width: 58, height: 58, borderRadius: 24, 
-                  background: 'linear-gradient(135deg, #1e1e2e, #0f0f1a)',
+                  width: 46, height: 46, borderRadius: 14,
+                  background: theme === 'dark' ? '#4F46E5' : '#0F172A',
                   color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 12px 30px rgba(15,15,26,0.3)', 
-                  transform: 'translateY(-22px)', cursor: 'pointer',
-                  position: 'relative', overflow: 'hidden'
+                  boxShadow: theme === 'dark' ? '0 8px 18px rgba(79, 70, 229, 0.35)' : '0 8px 18px rgba(15,23,42,0.25)',
+                  cursor: 'pointer', position: 'relative'
                 }}
               >
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(rgba(255,255,255,0.1), transparent)' }} />
-                <tab.icon size={30} strokeWidth={2.5} />
+                <tab.icon size={22} strokeWidth={2.6} />
               </motion.button>
             );
           }
@@ -485,43 +532,30 @@ export default function App() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTab(tab.id as any)} 
               style={{
-                background: 'none', border: 'none', display: 'flex', flexDirection: 'column',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: 16, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', gap: 6, cursor: 'pointer', flex: 1, height: '100%', justifyContent: 'center',
-                position: 'relative'
+                position: 'relative', paddingBottom: 2, margin: '0 4px',
+                transition: 'all 0.2s ease',
+                minWidth: 44,
+                minHeight: 44
               }}
             >
               <motion.div
                 animate={{ 
-                  y: isActive ? -2 : 0,
-                  scale: isActive ? 1.1 : 1
+                  y: isActive ? -4 : 0,
+                  opacity: isActive ? 1 : 0.35
                 }}
               >
-                <tab.icon size={23} strokeWidth={isActive ? 2.5 : 2} color={isActive ? '#1a1a2e' : '#94A3B8'} />
+                <tab.icon size={23} strokeWidth={isActive ? 2.5 : 2} color={isActive ? (theme === 'dark' ? '#6366F1' : '#1a1a1a') : (theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#94a3b8')} />
               </motion.div>
               
-              <span style={{ 
-                fontSize: 11, 
-                fontWeight: isActive ? 800 : 600, 
-                color: isActive ? '#1a1a2e' : '#94A3B8',
-                letterSpacing: '-0.2px'
-              }}>
-                {tab.label}
-              </span>
-              
-              {isActive && (
-                <motion.div 
-                  layoutId="nav-glow" 
-                  style={{ 
-                    position: 'absolute', bottom: 12, width: 4, height: 4, 
-                    borderRadius: '50%', background: '#10B981',
-                    boxShadow: '0 0 10px rgba(16, 185, 129, 0.5)'
-                  }} 
-                />
-              )}
             </motion.button>
           );
         })}
       </nav>
+
 
       {/* ── MODALS ── */}
       <ActivityForm

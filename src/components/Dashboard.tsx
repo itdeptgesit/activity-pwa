@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { 
-  CheckCircle2, Clock, AlertCircle, TrendingUp, 
+  CheckCircle2, AlertCircle, TrendingUp,
   Calendar, ArrowRight, Wrench, Settings, Network,
-  LifeBuoy, Code, PenTool, ShoppingCart, 
-  ClipboardList, ChevronRight, MapPin, Compass, LucideIcon, User,
-  Sun, CloudSun, MoonStar, Moon
+  LifeBuoy, Code, PenTool, ShoppingCart,
+  ClipboardList, LucideIcon, User,
+  Sun, MoonStar, Moon
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DashboardStats, Activity, UserAccount } from "../types";
@@ -22,27 +22,59 @@ interface DashboardProps {
   onThemeToggle: (e?: React.MouseEvent) => void;
 }
 
-const CATEGORY_MAP: Record<string, { icon: LucideIcon; bg: string; accent: string; label: string }> = {
-  'Troubleshooting':           { icon: Wrench,       bg: 'rgba(239, 68, 68, 0.15)', accent: '#EF4444', label: 'Troubleshoot' },
-  'Maintenance':               { icon: Settings,     bg: 'rgba(59, 130, 246, 0.15)', accent: '#3B82F6', label: 'Maintenance' },
-  'Infrastructure & Network':  { icon: Network,      bg: 'rgba(99, 102, 241, 0.15)', accent: '#6366F1', label: 'Infra & Net' },
-  'Technical Support':         { icon: LifeBuoy,     bg: 'rgba(34, 197, 94, 0.15)', accent: '#22C55E', label: 'Support' },
-  'Web Development':           { icon: Code,         bg: 'rgba(139, 92, 246, 0.15)', accent: '#8B5CF6', label: 'Devel' },
-  'Creative & Design':         { icon: PenTool,      bg: 'rgba(236, 72, 153, 0.15)', accent: '#EC4899', label: 'Design' },
-  'Procurement & Assets':      { icon: ShoppingCart, bg: 'rgba(100, 116, 139, 0.15)', accent: '#64748B', label: 'Asset' },
-  'Other':                     { icon: ClipboardList,bg: 'rgba(148, 163, 184, 0.15)', accent: '#94A3B8', label: 'Other' },
+const CATEGORY_MAP: Record<string, { icon: LucideIcon; bg: string; accent: string; label: string; token: string }> = {
+  'Troubleshooting':           { icon: Wrench,       bg: 'rgba(248, 113, 113, 0.1)', accent: '#F87171', label: 'Troubleshoot', token: 'var(--cat-troubleshoot)' },
+  'Maintenance':               { icon: Settings,     bg: 'rgba(99, 102, 241, 0.1)',  accent: '#6366F1', label: 'Maintenance',  token: 'var(--cat-maintenance)' },
+  'Infrastructure & Network':  { icon: Network,      bg: 'rgba(79, 70, 229, 0.1)',   accent: '#4F46E5', label: 'Infra & Net',  token: 'var(--cat-network)' },
+  'Technical Support':         { icon: LifeBuoy,     bg: 'rgba(16, 185, 129, 0.1)',  accent: '#10B981', label: 'Support',      token: 'var(--cat-support)' },
+  'Web Development':           { icon: Code,         bg: 'rgba(139, 92, 246, 0.1)',  accent: '#8B5C08', label: 'Development',  token: 'var(--cat-dev)' },
+  'Creative & Design':         { icon: PenTool,      bg: 'rgba(236, 72, 153, 0.1)',  accent: '#EC4899', label: 'Design',       token: 'var(--cat-design)' },
+  'Procurement & Assets':      { icon: ShoppingCart, bg: 'rgba(100, 116, 139, 0.1)',  accent: '#64748B', label: 'Assets',       token: 'var(--cat-asset)' },
+  'Other':                     { icon: ClipboardList,bg: 'rgba(148, 163, 184, 0.1)',  accent: '#94A3B8', label: 'Other',        token: 'var(--cat-other)' },
 };
 
-// ── BENTO GRID ───────────────────────────────────────────────
-function BentoGrid({ stats, currentActivity, activities, onViewAll, onViewActivity, onNavigateWithFilter }: { 
+// ── CIRCULAR PROGRESS ──────────────────────────────────────────────
+function CircularProgress({ percent, size = 60, strokeWidth = 5 }: { percent: number; size?: number; strokeWidth?: number }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percent / 100) * circumference;
+
+  return (
+    <div style={{ position: 'relative', width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+        <circle
+          cx={size / 2} cy={size / 2} r={radius}
+          stroke="var(--app-border)"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+        />
+        <motion.circle
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          cx={size / 2} cy={size / 2} r={radius}
+          stroke="var(--accent)"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeLinecap="round"
+        />
+      </svg>
+      <span style={{ position: 'absolute', fontSize: 11, fontWeight: 800, color: 'var(--app-text)' }}>{percent}%</span>
+    </div>
+  );
+}
+
+// ── BENTO GRID (SYNCED WITH SCREENSHOT) ───────────────────────────────
+function BentoGrid({ stats, currentActivity, activities, onViewAll, onViewActivity, onNavigateWithFilter, theme }: { 
   stats: DashboardStats, 
   currentActivity: Activity | null, 
   activities: Activity[], 
   onViewAll: () => void,
   onViewActivity: (a: Activity) => void,
-  onNavigateWithFilter: (tab: 'journey', filter: any) => void
+  onNavigateWithFilter: (tab: 'journey', filter: any) => void,
+  theme: 'light' | 'dark'
 }) {
-  // Calculate daily progress
   const today = new Date();
   const completedToday = activities.filter(a => a.status === 'Completed' && a.created_at && isToday(new Date(a.created_at))).length;
   const totalToday = activities.filter(a => a.created_at && isToday(new Date(a.created_at))).length || 1;
@@ -50,177 +82,189 @@ function BentoGrid({ stats, currentActivity, activities, onViewAll, onViewActivi
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 20 }}>
-      {/* Hero Card (Full Width) */}
+      {/* Hero Card: Current Mission */}
       <motion.div 
         whileTap={{ scale: 0.98 }}
         onClick={() => currentActivity && onViewActivity(currentActivity)}
         style={{
           gridColumn: '1 / -1',
-          background: 'linear-gradient(135deg, #6366F1, #312E81)', borderRadius: 32, padding: '24px 28px',
+          background: 'linear-gradient(140deg, var(--home-hero-start), var(--home-hero-end))', borderRadius: 24, padding: '22px 24px',
           color: '#fff', display: 'flex', flexDirection: 'column',
-          position: 'relative', overflow: 'hidden', minHeight: 180,
+          position: 'relative', overflow: 'hidden', minHeight: 160,
           cursor: currentActivity ? 'pointer' : 'default',
-          boxShadow: '0 10px 30px rgba(99, 102, 241, 0.2)',
+          boxShadow: theme === 'dark' ? '0 10px 28px rgba(91, 83, 247, 0.38), 0 0 0 1px rgba(143, 151, 255, 0.18)' : '0 12px 30px rgba(79, 70, 229, 0.25)',
           border: '1px solid rgba(255,255,255,0.1)'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <TrendingUp size={22} color="#fff" />
-            <h3 style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.3px' }}>Current Mission</h3>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <TrendingUp size={18} color="rgba(255,255,255,0.9)" strokeWidth={2.5} />
+              <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.9 }}>Current Mission</span>
+            </div>
+            {currentActivity && (
+              <div style={{ background: 'rgba(255,255,255,0.2)', padding: '5px 12px', borderRadius: 20, fontSize: 10, fontWeight: 800, letterSpacing: '0.05em' }}>ACTIVE</div>
+            )}
           </div>
-          <button style={{
-            background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none',
-            borderRadius: 20, padding: '6px 14px', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em'
-          }}>Active</button>
+          
+          {currentActivity ? (
+            <div>
+              <h2 style={{ fontSize: 26, fontWeight: 800, marginBottom: 8, lineHeight: 1.1, letterSpacing: '-0.5px' }}>{currentActivity.activity_name}</h2>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Calendar size={14} />
+                    <span>{currentActivity.created_at ? format(new Date(currentActivity.created_at), 'd MMM') : 'Today'}</span>
+                 </div>
+                 <span style={{ opacity: 0.4 }}>•</span>
+                 <span>{currentActivity.category}</span>
+              </div>
+            </div>
+          ) : (
+            <div style={{ marginTop: 'auto' }}>
+              <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4 }}>System Ready</h2>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>No active missions logged.</p>
+            </div>
+          )}
         </div>
         
-        {currentActivity ? (
-          <div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, marginBottom: 8, lineHeight: 1.1, letterSpacing: '-0.5px' }}>{currentActivity.activity_name}</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
-               <Calendar size={14} />
-               <span>{format(new Date(currentActivity.created_at || new Date()), 'd MMM')}</span>
-               <span style={{ opacity: 0.4 }}>•</span>
-               <span>{currentActivity.category}</span>
-            </div>
-          </div>
-        ) : (
-          <div style={{ marginTop: 'auto' }}>
-            <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 8, letterSpacing: '-0.5px' }}>Ready to Roll?</h2>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>No active tasks detected.</p>
-          </div>
-        )}
-        {/* Abstract ornament accent */}
-        <div style={{ position: 'absolute', bottom: -10, right: 10, opacity: 0.15 }}>
-           <TrendingUp size={120} color="#fff" strokeWidth={1} />
+        {/* Decorative Background Icon */}
+        <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: 0.1, color: '#fff' }}>
+           <TrendingUp size={140} strokeWidth={1.5} />
         </div>
       </motion.div>
 
-      {/* Daily Progress Widget (Half Width) */}
+      {/* Daily Progress Widget (Theme Aware) */}
       <motion.div 
         whileTap={{ scale: 0.96 }}
         onClick={() => onNavigateWithFilter('journey', 'Today')}
         style={{
-          background: 'var(--app-card)', borderRadius: 28, padding: '24px',
-          color: 'var(--app-text)', display: 'flex', flexDirection: 'column', cursor: 'pointer',
-          border: '1px solid var(--app-border)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+          background: 'var(--home-soft-card)', borderRadius: 24, padding: '22px',
+          color: 'var(--app-text)', display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer',
+          border: '1px solid var(--home-soft-card-border)',
+          boxShadow: theme === 'dark' ? '0 8px 24px rgba(0,0,0,0.32), 0 0 22px rgba(143, 151, 255, 0.14)' : '0 8px 30px rgba(0,0,0,0.05)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: 6, borderRadius: '50%', color: 'var(--accent)' }}>
-            <CheckCircle2 size={16} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+           <div style={{ padding: 6, background: theme === 'dark' ? 'rgba(123, 131, 255, 0.14)' : 'rgba(99, 102, 241, 0.1)', borderRadius: 10, color: 'var(--home-soft-progress)' }}>
+              <CheckCircle2 size={16} strokeWidth={2.5} />
+           </div>
+           <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Daily</span>
+        </div>
+        
+        <div>
+          <h3 style={{ fontSize: 28, fontWeight: 800, marginBottom: 4 }}>{progressPercent}%</h3>
+          <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--app-muted)', marginBottom: 12 }}>{completedToday}/{totalToday} logs</p>
+          <div style={{ height: 6, width: '100%', background: 'var(--secondary)', borderRadius: 3, overflow: 'hidden' }}>
+             <motion.div 
+               initial={{ width: 0 }}
+               animate={{ width: `${progressPercent}%` }}
+               style={{ height: '100%', background: 'var(--home-soft-progress)', borderRadius: 3 }} 
+             />
           </div>
-          <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Daily</span>
-        </div>
-        <div style={{ marginBottom: 12 }}>
-          <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px' }}>{progressPercent}%</span>
-          <p style={{ fontSize: 11, color: 'var(--app-muted)', marginTop: 2, fontWeight: 700 }}>{completedToday}/{totalToday} logs</p>
-        </div>
-        <div style={{ height: 8, background: 'var(--app-border)', borderRadius: 4, overflow: 'hidden' }}>
-          <motion.div initial={{ width: 0 }} animate={{ width: `${progressPercent}%` }} style={{ height: '100%', background: 'var(--accent)', borderRadius: 4 }} />
         </div>
       </motion.div>
 
-      {/* Persistence / Alert Widget (Half Width) */}
+      {/* Urgent Alert Widget (Coral Style) */}
       <motion.div 
         whileTap={{ scale: 0.96 }}
         onClick={() => onNavigateWithFilter('journey', stats.highAlert > 0 ? 'Critical' : 'In Progress')}
         style={{
-          background: stats.highAlert > 0 ? '#EF4444' : 'var(--app-text)', borderRadius: 28, padding: '24px',
-          color: stats.highAlert > 0 ? '#fff' : 'var(--app-bg)', display: 'flex', flexDirection: 'column', position: 'relative', cursor: 'pointer',
-          boxShadow: stats.highAlert > 0 ? '0 10px 30px rgba(239, 68, 68, 0.25)' : 'none',
-          border: stats.highAlert > 0 ? '1px solid rgba(255,255,255,0.2)' : 'none'
+          background: theme === 'dark'
+            ? 'linear-gradient(145deg, var(--home-soft-urgent-start), var(--home-soft-urgent-end))'
+            : 'var(--soft-coral)', borderRadius: 24, padding: '22px',
+          color: '#fff', display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', cursor: 'pointer',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: theme === 'dark' ? '0 10px 28px rgba(217, 70, 239, 0.28), 0 0 0 1px rgba(255, 95, 135, 0.2)' : '0 12px 30px rgba(251, 113, 133, 0.25)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-          <div style={{ background: 'rgba(255,255,255,0.2)', padding: 6, borderRadius: '50%' }}>
-            {stats.highAlert > 0 ? <AlertCircle size={16} /> : <TrendingUp size={16} />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+           <div style={{ padding: 6, background: 'rgba(255,255,255,0.2)', borderRadius: 10 }}>
+              <AlertCircle size={16} strokeWidth={2.5} />
+           </div>
+           <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Urgent</span>
+        </div>
+        
+        <div>
+          <h3 style={{ fontSize: 32, fontWeight: 800, marginBottom: 4 }}>{stats.highAlert > 0 ? stats.highAlert : stats.inProgress}</h3>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+             <p style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>Action required</p>
+             <ArrowRight size={18} strokeWidth={2.5} />
           </div>
-          <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{stats.highAlert > 0 ? 'Urgent' : 'Status'}</span>
         </div>
-        <div style={{ marginTop: 'auto' }}>
-          <span style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.5px' }}>{stats.highAlert > 0 ? stats.highAlert : stats.inProgress}</span>
-          <p style={{ fontSize: 11, opacity: 0.9, marginTop: 2, fontWeight: 700 }}>{stats.highAlert > 0 ? 'Action required' : 'Active logs'}</p>
-        </div>
-        <ArrowRight size={20} style={{ position: 'absolute', bottom: 24, right: 24, opacity: 0.5 }} />
       </motion.div>
     </div>
   );
 }
 
-// ── QUICK LOG CARDS ────────────────────────────────────────────────
-function QuickLogCards({ activities, onViewAll, onViewActivity }: { activities: Activity[]; onViewAll: () => void, onViewActivity: (a: Activity) => void }) {
+// ── QUICK LOG CARDS (Premium Synced Cards) ───────────────────────────────────────────
+function QuickLogCards({ activities, onViewAll, onViewActivity, theme }: { activities: Activity[]; onViewAll: () => void, onViewActivity: (a: Activity) => void, theme?: string }) {
+  const isDark = theme === 'dark';
+
+  const COLOR_VARIANTS = isDark ? [
+    { bg: '#434dbe', text: '#f4f6ff', muted: 'rgba(244,246,255,0.78)', icon: LifeBuoy }, // Electric indigo
+    { bg: '#b8842a', text: '#fff7e6', muted: 'rgba(255,247,230,0.78)', icon: Wrench },   // Glowing amber
+    { bg: '#2e9469', text: '#ecfff6', muted: 'rgba(236,255,246,0.78)', icon: Wrench },   // Bright emerald
+  ] : [
+    { bg: '#BFDBFE', text: '#1E3A8A', muted: 'rgba(30,58,138,0.6)', icon: LifeBuoy }, // Pastel Blue
+    { bg: '#FEF3C7', text: '#92400E', muted: 'rgba(146,64,14,0.6)', icon: Wrench },   // Pastel Amber
+    { bg: '#ECFCCB', text: '#3F6212', muted: 'rgba(63,98,18,0.6)', icon: Wrench },   // Pastel Lime
+  ];
+
   return (
     <div style={{ marginBottom: 32 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, padding: '0 4px' }}>
-        <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.3px' }}>Recent Activity</h2>
-        <button onClick={onViewAll} style={{
-          fontSize: 13, fontWeight: 700, color: '#10B981',
-          background: 'none', border: 'none', cursor: 'pointer'
-        }}>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.4px' }}>Recent Activity</h2>
+        <button onClick={onViewAll} style={{ fontSize: 13, fontWeight: 700, color: '#10B981', background: 'none', border: 'none', cursor: 'pointer' }}>
           See All
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 14 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {activities.length > 0 ? (
-          activities.slice(0, 4).map((a, i) => {
+          activities.slice(0, 3).map((a, i) => {
+            const variant = COLOR_VARIANTS[i % COLOR_VARIANTS.length];
             const config = CATEGORY_MAP[a.category ?? 'Other'] || CATEGORY_MAP['Other'];
-            // Bento style colors
-            const bentoColors = [
-              { bg: '#A3C4F3', text: '#1E293B' },
-              { bg: '#FFD166', text: '#1E293B' },
-              { bg: '#D4FF26', text: '#1E293B' },
-              { bg: '#1E293B', text: '#F8FAFC' }
-            ];
-            const color = bentoColors[i % bentoColors.length];
+            
             return (
               <motion.div
                 key={a.id}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onViewActivity(a)}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.4, ease: "easeOut" }}
                 style={{
-                  background: color.bg, borderRadius: 28, padding: '24px',
-                  color: color.text, display: 'flex', flexDirection: 'column', gap: 12,
+                  background: variant.bg, borderRadius: 24, padding: '22px 24px',
+                  color: variant.text, display: 'flex', flexDirection: 'column',
                   position: 'relative', overflow: 'hidden', cursor: 'pointer',
-                  border: i % 4 === 3 ? '1px solid rgba(255,255,255,0.1)' : 'none'
+                  border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.03)',
+                  boxShadow: isDark ? `0 8px 25px ${variant.bg}25` : '0 4px 15px rgba(0,0,0,0.02)'
                 }}
               >
-                {/* Large Background Icon */}
-                <div style={{ position: 'absolute', bottom: -15, right: -10, opacity: 0.12, transform: 'rotate(-10deg)', pointerEvents: 'none' }}>
-                  <config.icon size={110} color={color.text} strokeWidth={1.5} />
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <span style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>{a.activity_name}</span>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 12px', opacity: 0.75, fontSize: 11, fontWeight: 600 }}>
-                      <span>{a.created_at ? format(new Date(a.created_at), 'd MMM') : 'Today'}</span>
-                      <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'currentColor', opacity: 0.3 }} />
-                      <span>{config.label}</span>
-                      {a.it_personnel && (
-                        <>
-                          <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'currentColor', opacity: 0.3 }} />
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <User size={10} strokeWidth={3} /> {a.it_personnel}
-                          </span>
-                        </>
-                      )}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6, lineHeight: 1.2, letterSpacing: '-0.3px' }}>{a.activity_name}</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 600, color: variant.muted }}>
+                    <span>{a.created_at ? format(new Date(a.created_at), 'd MMM') : 'Today'}</span>
+                    <span style={{ opacity: 0.4 }}>•</span>
+                    <span>{config.label}</span>
+                    <span style={{ opacity: 0.4 }}>•</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                       <User size={12} strokeWidth={2.5} />
+                       <span>{a.it_personnel || 'Admin'}</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Background Decor Icon */}
+                <div style={{ position: 'absolute', top: '50%', right: -10, transform: 'translateY(-50%)', opacity: 0.15, color: variant.text }}>
+                   <variant.icon size={100} strokeWidth={1.5} />
                 </div>
               </motion.div>
             );
           })
         ) : (
-          <div style={{ background: 'var(--app-card)', borderRadius: 28, padding: '30px', textAlign: 'center', color: 'var(--app-muted)', border: '1px solid var(--app-border)' }}>
-            <ClipboardList size={28} style={{ margin: '0 auto 12px' }} />
-            <p style={{ fontWeight: 600 }}>No recent logs.</p>
+          <div style={{ background: 'var(--app-card)', borderRadius: 24, padding: '32px', textAlign: 'center', color: 'var(--app-muted)', border: '1px solid var(--app-border)' }}>
+             <p style={{ fontWeight: 700, fontSize: 14 }}>No activity found.</p>
           </div>
         )}
       </div>
@@ -233,96 +277,77 @@ export default function Dashboard({ user, stats, recentActivities, onViewAll, on
   const currentActivity = recentActivities.find(a => a.status === 'In Progress') ?? null;
   const completedRecent = recentActivities.filter(a => a.status === 'Completed');
 
-  // Greeting and Date Logic
   const now = new Date();
   const hour = now.getHours();
   const dateStr = format(now, 'EEEE, d MMMM');
   
   let greeting = 'Good Evening';
-  let TimeIcon = MoonStar;
-  let iconColor = theme === 'dark' ? '#A3C4F3' : '#6366F1';
-
-  if (hour >= 5 && hour < 12) {
-    greeting = 'Good Morning';
-    TimeIcon = Sun;
-    iconColor = '#F59E0B';
-  } else if (hour >= 12 && hour < 17) {
-    greeting = 'Good Afternoon';
-    TimeIcon = CloudSun;
-    iconColor = '#3B82F6';
-  } else if (hour >= 17 && hour < 21) {
-    greeting = 'Good Evening';
-    TimeIcon = MoonStar;
-    iconColor = theme === 'dark' ? '#A3C4F3' : '#6366F1';
-  } else {
-    greeting = 'Good Night';
-    TimeIcon = MoonStar;
-    iconColor = theme === 'dark' ? '#A3C4F3' : '#475569';
-  }
+  if (hour < 12) greeting = 'Good Morning';
+  else if (hour < 17) greeting = 'Good Afternoon';
+  else if (hour < 21) greeting = 'Good Evening';
+  else greeting = 'Good Night';
 
   return (
-    <div style={{ paddingBottom: 100, background: 'transparent', minHeight: '100dvh' }}>
-      {/* ── STICKY HEADER ── */}
-      <div style={{ 
-        position: 'sticky', 
-        top: 0, 
-        zIndex: 100, 
-        background: 'var(--app-header-bg)', 
-        backdropFilter: 'blur(20px)', 
-        WebkitBackdropFilter: 'blur(20px)',
-        padding: '16px 24px 20px',
+    <div style={{ padding: '32px 24px 0' }}>
+      {/* Header (Greeting & Theme) */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        gap: 14,
+        position: 'sticky',
+        top: 0,
+        zIndex: 40,
+        margin: '-8px -24px 24px',
+        padding: '14px 24px 16px',
+        background: 'var(--app-header-bg)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
         borderBottom: '1px solid var(--app-border)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <TimeIcon size={18} color={iconColor} strokeWidth={2.5} />
-              <span style={{ fontSize: 11, fontWeight: 800, color: iconColor, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                {greeting}
-              </span>
-            </div>
-            <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--app-text)', letterSpacing: '-0.7px', lineHeight: 1.1 }}>
-              {user?.fullName ? user.fullName.split(' ')[0] : 'Rudi'} 
-            </h1>
-            <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--app-muted)', marginTop: 4 }}>
-              {dateStr}
-            </p>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            {hour >= 21 || hour < 5 ? <MoonStar size={12} color="var(--accent)" /> : <Sun size={12} color="var(--accent)" />}
+            <p style={{ fontSize: 11, fontWeight: 800, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{greeting}</p>
           </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => onThemeToggle(e)}
-              style={{
-                width: 44, height: 44, borderRadius: 14,
-                background: 'var(--app-card)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                border: '1px solid var(--app-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', color: 'var(--app-text)'
-              }}
-            >
-              {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
-            </motion.button>
+          <h1 style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.05, color: 'var(--app-text)', letterSpacing: '-1px', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {user?.fullName ? user.fullName.split(' ')[0] : 'Rudi'}
+          </h1>
+          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--app-muted)', opacity: 0.85 }}>{dateStr}</p>
+        </div>
 
-            <div style={{
-              width: 52, height: 52, borderRadius: 18, background: 'var(--app-card)',
-              overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '2px solid var(--app-card)', boxShadow: '0 8px 16px rgba(0,0,0,0.08)',
-              color: 'var(--app-text)', fontSize: 20, fontWeight: 700
-            }}>
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <span>{user?.fullName ? user.fullName[0].toUpperCase() : 'U'}</span>
-              )}
-            </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, paddingTop: 2 }}>
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={(e) => onThemeToggle(e)}
+            aria-label="Toggle theme"
+            style={{
+              width: 42, height: 42, borderRadius: 13,
+              background: 'var(--app-card)', border: '1px solid var(--app-border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--app-text)', boxShadow: '0 6px 18px rgba(0,0,0,0.06)'
+            }}
+          >
+            {theme === 'light' ? <Moon size={18} strokeWidth={2.5} /> : <Sun size={18} strokeWidth={2.5} />}
+          </motion.button>
+
+          <div style={{
+            width: 44, height: 44, borderRadius: 14, background: 'var(--secondary)',
+            overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '2px solid var(--app-card)', boxShadow: '0 6px 18px rgba(0,0,0,0.08)',
+            color: 'var(--app-text)', fontSize: 16, fontWeight: 700
+          }}>
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <span>{user?.fullName ? user.fullName[0].toUpperCase() : 'U'}</span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ padding: '24px 24px 0' }}>
+      <div style={{ paddingBottom: 100 }}>
         <BentoGrid 
           stats={stats} 
           currentActivity={currentActivity} 
@@ -330,11 +355,13 @@ export default function Dashboard({ user, stats, recentActivities, onViewAll, on
           onViewAll={onViewAll} 
           onViewActivity={onViewActivity}
           onNavigateWithFilter={onNavigateWithFilter}
+          theme={theme}
         />
         <QuickLogCards 
-          activities={completedRecent} 
+          activities={recentActivities} 
           onViewAll={onViewAll} 
           onViewActivity={onViewActivity}
+          theme={theme}
         />
       </div>
     </div>

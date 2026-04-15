@@ -61,6 +61,15 @@
   --app-muted: var(--muted-foreground);
   --app-border: var(--border);
   --app-header-bg: rgba(248, 250, 252, 0.85);
+  --soft-coral: #fb7185;
+  --soft-amber: #f59e0b;
+  --home-hero-start: #4f46e5;
+  --home-hero-end: #312e81;
+  --home-soft-card: #ffffff;
+  --home-soft-card-border: rgba(0, 0, 0, 0.08);
+  --home-soft-progress: #6366f1;
+  --home-soft-urgent-start: #fb7185;
+  --home-soft-urgent-end: #f97393;
 }
 
 .dark {
@@ -89,6 +98,15 @@
   --app-muted: var(--muted-foreground);
   --app-border: var(--border);
   --app-header-bg: rgba(0, 0, 0, 0.8);
+  --soft-coral: #db7093;
+  --soft-amber: #d1a249;
+  --home-hero-start: #5b53f7;
+  --home-hero-end: #2f2a9c;
+  --home-soft-card: #0f1220;
+  --home-soft-card-border: rgba(123, 131, 255, 0.28);
+  --home-soft-progress: #8f97ff;
+  --home-soft-urgent-start: #ff5f87;
+  --home-soft-urgent-end: #d946ef;
 }
 
 /* ========================================
@@ -151,6 +169,24 @@
 .slide-up { animation: slideUp 0.3s ease forwards; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes shimmer {
+  0% { background-position: -220% 0; }
+  100% { background-position: 220% 0; }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    100deg,
+    var(--secondary) 20%,
+    color-mix(in srgb, var(--secondary) 70%, var(--foreground) 8%) 50%,
+    var(--secondary) 80%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.7s linear infinite;
+}
 
 /* ========================================
    VIEW TRANSITIONS (Clean Cross-Fade)

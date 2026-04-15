@@ -39,16 +39,16 @@ const STATUS_COLORS: Record<string, { active: string; bg: string; border: string
 };
 
 const inputBase: React.CSSProperties = {
-  width: '100%', height: 38, padding: '0 12px',
+  width: '100%', height: 42, padding: '0 12px',
   background: 'var(--app-bg)', border: '1px solid var(--app-border)',
-  borderRadius: 12, color: 'var(--app-text)', fontSize: 13, fontWeight: 500,
+  borderRadius: 14, color: 'var(--app-text)', fontSize: 13, fontWeight: 600,
   outline: 'none', transition: 'all 0.2s',
   appearance: 'none',
 };
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: 9, fontWeight: 700, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3, marginLeft: 2 }}>
+    <p style={{ fontSize: 10, fontWeight: 800, color: 'var(--app-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 5, marginLeft: 2 }}>
       {children}
     </p>
   );
@@ -64,6 +64,26 @@ function FieldWrap({ label, error, children }: { label: string; error?: string; 
           <AlertCircle size={12} /> {error}
         </p>
       )}
+    </div>
+  );
+}
+
+function SectionCard({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+  return (
+    <div style={{
+      background: 'linear-gradient(180deg, var(--app-card), color-mix(in srgb, var(--app-card) 92%, var(--app-bg) 8%))',
+      borderRadius: 22,
+      padding: '14px',
+      border: '1px solid var(--app-border)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12
+    }}>
+      <div>
+        <h3 style={{ fontSize: 13, fontWeight: 800, color: 'var(--app-text)', marginBottom: 2 }}>{title}</h3>
+        <p style={{ fontSize: 11, color: 'var(--app-muted)', fontWeight: 600 }}>{subtitle}</p>
+      </div>
+      {children}
     </div>
   );
 }
@@ -192,10 +212,10 @@ export default function ActivityForm({
               position: 'fixed', bottom: 0,
               left: 0, right: 0, margin: '0 auto',
               width: '100%', maxWidth: 480, zIndex: 1000,
-              background: 'var(--app-bg)',
-              borderRadius: '24px 24px 0 0',
+              background: 'color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%)',
+              borderRadius: '26px 26px 0 0',
               maxHeight: '94dvh', display: 'flex', flexDirection: 'column',
-              boxShadow: '0 -8px 40px rgba(0,0,0,0.15)',
+              boxShadow: '0 -12px 45px rgba(0,0,0,0.2)',
               overflow: 'hidden',
               color: 'var(--app-text)'
             }}
@@ -206,7 +226,7 @@ export default function ActivityForm({
 
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '6px 20px 16px', borderBottom: '1px solid var(--app-border)',
+              padding: '8px 20px 16px', borderBottom: '1px solid var(--app-border)',
             }}>
               <button onClick={onClose} style={{
                 width: 38, height: 38, borderRadius: 12, border: '1px solid var(--app-border)',
@@ -215,6 +235,9 @@ export default function ActivityForm({
               }}><X size={18} /></button>
 
               <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: 10, fontWeight: 800, color: 'var(--accent)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4 }}>
+                  Activity Form
+                </p>
                 <h2 style={{ fontSize: 16, fontWeight: 800, color: 'var(--app-text)', margin: 0 }}>
                   {initialData ? 'Edit Activity' : 'New Activity'}
                 </h2>
@@ -226,15 +249,11 @@ export default function ActivityForm({
               <div style={{ width: 38 }} />
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }} className="no-scrollbar">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 16 }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px' }} className="no-scrollbar">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingBottom: 16 }}>
 
                 {/* Main Bento Card: Primary Info */}
-                <div style={{ 
-                  background: 'var(--app-card)', borderRadius: 20, padding: '12px 14px', 
-                  border: '1px solid var(--app-border)',
-                  display: 'flex', flexDirection: 'column', gap: 10
-                }}>
+                <SectionCard title="Primary Information" subtitle="Main identity of activity">
                   <FieldWrap label="Activity Essence" error={errors.activity_name}>
                     <input
                       type="text" placeholder="What was done?"
@@ -288,10 +307,10 @@ export default function ActivityForm({
                       </AnimatePresence>
                     </div>
                   </FieldWrap>
-                </div>
+                </SectionCard>
 
                 {/* Secondary Bento Grid: Logistics */}
-                <div style={{ background: 'var(--app-card)', borderRadius: 20, padding: '12px 14px', border: '1px solid var(--app-border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <SectionCard title="Timeline & Classification" subtitle="Dates, priority and routing">
                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       <FieldWrap label="Start Date">
                         <input type="date" value={createdAt} onChange={e => setCreatedAt(e.target.value)}
@@ -345,25 +364,28 @@ export default function ActivityForm({
                         <ChevronDown size={12} color="#94A3B8" style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                       </div>
                    </FieldWrap>
-                </div>
+                </SectionCard>
 
-                <FieldWrap label="Insights">
-                  <textarea placeholder="Write additional context..." rows={2} value={form.remarks || ''}
-                    onChange={e => setForm(p => ({ ...p, remarks: e.target.value }))}
-                    style={{ ...inputBase, height: 'auto', padding: '8px 12px', borderRadius: 16, resize: 'none' }}
-                    onFocus={focusStyle} onBlur={e => blurStyle(e)}
-                  />
-                </FieldWrap>
+                <SectionCard title="Notes" subtitle="Additional context and details">
+                  <FieldWrap label="Insights">
+                    <textarea placeholder="Write additional context..." rows={3} value={form.remarks || ''}
+                      onChange={e => setForm(p => ({ ...p, remarks: e.target.value }))}
+                      style={{ ...inputBase, height: 'auto', padding: '10px 12px', borderRadius: 16, resize: 'none' }}
+                      onFocus={focusStyle} onBlur={e => blurStyle(e)}
+                    />
+                  </FieldWrap>
+                </SectionCard>
               </div>
             </div>
 
-            <div style={{ padding: '12px 16px 24px', borderTop: '1px solid var(--app-border)', background: 'var(--app-bg)' }}>
+            <div style={{ padding: '12px 16px 24px', borderTop: '1px solid var(--app-border)', background: 'color-mix(in srgb, var(--app-bg) 92%, var(--app-card) 8%)' }}>
               <button onClick={handleSubmit} disabled={saving}
                 style={{
                   width: '100%', height: 48, borderRadius: 16, border: 'none',
-                  background: 'var(--app-text)', color: 'var(--app-bg)', fontSize: 14, fontWeight: 800,
+                  background: 'linear-gradient(135deg, var(--app-text), color-mix(in srgb, var(--app-text) 84%, #4F46E5 16%))',
+                  color: 'var(--app-bg)', fontSize: 14, fontWeight: 800,
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.2)',
+                  boxShadow: '0 10px 24px rgba(0,0,0,0.25)',
                   opacity: saving ? 0.7 : 1, cursor: saving ? 'not-allowed' : 'pointer',
                 }}
               >

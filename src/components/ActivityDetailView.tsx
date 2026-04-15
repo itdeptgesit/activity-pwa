@@ -88,9 +88,10 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
               {activity.activity_name}
             </h2>
             
-            <div style={{ display: 'flex', gap: 16 }}>
-               <StatusBadge label={activity.status} color={activity.status === 'Completed' ? '#10B981' : '#F59E0B'} />
-               <StatusBadge label={activity.duration || 'Flexible'} color="var(--app-muted)" icon={<Clock size={10} />} />
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+               <StatusBadge label={activity.status} kind="status" />
+               <StatusBadge label={activity.type || 'Minor'} kind="type" />
+               <StatusBadge label={activity.duration || 'Flexible'} kind="meta" icon={<Clock size={10} />} />
             </div>
           </div>
 
@@ -153,14 +154,35 @@ export default function ActivityDetailView({ activity, onClose, onEdit, onDelete
   );
 }
 
-function StatusBadge({ label, color, icon }: { label: string, color: string, icon?: React.ReactNode }) {
+function StatusBadge({ label, kind, icon }: { label: string, kind: 'status' | 'type' | 'meta', icon?: React.ReactNode }) {
+  const statusMap: Record<string, { bg: string; color: string }> = {
+    'Completed': { bg: '#10B981', color: '#ffffff' },
+    'In Progress': { bg: '#6366F1', color: '#ffffff' },
+    'High Alert': { bg: '#EF4444', color: '#ffffff' },
+  };
+
+  const typeMap: Record<string, { bg: string; color: string }> = {
+    'Critical': { bg: 'rgba(239, 68, 68, 0.14)', color: '#EF4444' },
+    'Major': { bg: 'rgba(245, 158, 11, 0.18)', color: '#D97706' },
+    'Minor': { bg: 'var(--secondary)', color: 'var(--app-muted)' },
+  };
+
+  const normalized = label || 'Minor';
+  const normalizedType = ['Critical', 'Major', 'Minor'].includes(normalized) ? normalized : 'Minor';
+  const style = kind === 'status'
+    ? (statusMap[normalized] || { bg: 'rgba(99, 102, 241, 0.15)', color: '#4F46E5' })
+    : kind === 'type'
+      ? typeMap[normalizedType]
+      : { bg: 'var(--secondary)', color: 'var(--app-muted)' };
+
   return (
     <div style={{ 
-      display: 'flex', alignItems: 'center', gap: 6, 
-      color: color, fontSize: 11, fontWeight: 600
+      display: 'flex', alignItems: 'center', gap: 6,
+      fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em',
+      background: style.bg, color: style.color, borderRadius: 8, padding: '5px 12px'
     }}>
       {icon}
-      <span style={{ textTransform: 'uppercase', letterSpacing: '0.02em' }}>{label}</span>
+      <span>{label}</span>
     </div>
   );
 }
