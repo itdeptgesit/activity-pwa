@@ -20,6 +20,9 @@ interface DashboardProps {
   onNavigateWithFilter: (tab: 'journey', filter: any) => void;
   theme: 'light' | 'dark';
   onThemeToggle: (e?: React.MouseEvent) => void;
+  loading?: boolean;
+  loadError?: boolean;
+  onRetryLoad?: () => void;
 }
 
 const CATEGORY_MAP: Record<string, { icon: LucideIcon; bg: string; accent: string; label: string; token: string }> = {
@@ -197,7 +200,7 @@ function BentoGrid({ stats, currentActivity, activities, onViewAll, onViewActivi
 }
 
 // ── QUICK LOG CARDS (Premium Synced Cards) ───────────────────────────────────────────
-function QuickLogCards({ activities, onViewAll, onViewActivity, theme }: { activities: Activity[]; onViewAll: () => void, onViewActivity: (a: Activity) => void, theme?: string }) {
+function QuickLogCards({ activities, onViewAll, onViewActivity, theme, loading, loadError, onRetryLoad }: { activities: Activity[]; onViewAll: () => void, onViewActivity: (a: Activity) => void, theme?: string, loading?: boolean, loadError?: boolean, onRetryLoad?: () => void }) {
   const isDark = theme === 'dark';
 
   const COLOR_VARIANTS = isDark ? [
@@ -262,6 +265,16 @@ function QuickLogCards({ activities, onViewAll, onViewActivity, theme }: { activ
               </motion.div>
             );
           })
+        ) : loading ? (
+          <div style={{ background: 'var(--app-card)', borderRadius: 24, padding: '32px', textAlign: 'center', color: 'var(--app-muted)', border: '1px solid var(--app-border)' }}>
+             <p style={{ fontWeight: 700, fontSize: 14 }}>Loading activities...</p>
+          </div>
+        ) : loadError ? (
+          <div style={{ background: 'var(--app-card)', borderRadius: 24, padding: '32px', textAlign: 'center', color: 'var(--app-muted)', border: '1px solid var(--app-border)' }}>
+             <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--app-text)', marginBottom: 6 }}>Couldn't load activities.</p>
+             <p style={{ fontSize: 12, marginBottom: 16 }}>The data is still saved on the server. Check your connection, then try again.</p>
+             <button onClick={onRetryLoad} style={{ fontSize: 13, fontWeight: 700, color: '#10B981', background: 'none', border: '1px solid #10B981', borderRadius: 999, padding: '8px 20px', cursor: 'pointer' }}>Try Again</button>
+          </div>
         ) : (
           <div style={{ background: 'var(--app-card)', borderRadius: 24, padding: '32px', textAlign: 'center', color: 'var(--app-muted)', border: '1px solid var(--app-border)' }}>
              <p style={{ fontWeight: 700, fontSize: 14 }}>No activity found.</p>
@@ -273,7 +286,7 @@ function QuickLogCards({ activities, onViewAll, onViewActivity, theme }: { activ
 }
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────
-export default function Dashboard({ user, stats, recentActivities, onViewAll, onAddNew, onViewActivity, onNavigateWithFilter, theme, onThemeToggle }: DashboardProps) {
+export default function Dashboard({ user, stats, recentActivities, onViewAll, onAddNew, onViewActivity, onNavigateWithFilter, theme, onThemeToggle, loading, loadError, onRetryLoad }: DashboardProps) {
   const currentActivity = recentActivities.find(a => a.status === 'In Progress') ?? null;
   const completedRecent = recentActivities.filter(a => a.status === 'Completed');
 
@@ -362,6 +375,9 @@ export default function Dashboard({ user, stats, recentActivities, onViewAll, on
           onViewAll={onViewAll} 
           onViewActivity={onViewActivity}
           theme={theme}
+          loading={loading}
+          loadError={loadError}
+          onRetryLoad={onRetryLoad}
         />
       </div>
     </div>
