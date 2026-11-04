@@ -27,6 +27,7 @@ export default function App() {
   const [dbUsers, setDbUsers] = useState<{name: string, department: string}[]>([]);
   const [dbDepartments, setDbDepartments] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [activeTab, setActiveTab] = useState<'home' | 'summary' | 'journey' | 'profile'>('home');
@@ -179,7 +180,12 @@ export default function App() {
   async function fetchActivities() {
     if (!navigator.onLine) {
       const cached = localStorage.getItem('cached-activities');
-      if (cached) setActivities(JSON.parse(cached));
+      if (cached) {
+        setActivities(JSON.parse(cached));
+        setLoadError(false);
+      } else {
+        setLoadError(true);
+      }
       setLoading(false);
       return;
     }
@@ -189,11 +195,13 @@ export default function App() {
       const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false });
       if (error) throw error;
       setActivities(data || []);
+      setLoadError(false);
       localStorage.setItem('cached-activities', JSON.stringify(data || []));
     } catch (e) {
       console.error(e);
       const cached = localStorage.getItem('cached-activities');
       if (cached) setActivities(JSON.parse(cached));
+      else setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -421,7 +429,10 @@ export default function App() {
                 <Dashboard 
                   user={currentUser} 
                   stats={stats} 
-                  recentActivities={activities} 
+                  recentActivities={activities}
+                  loading={loading}
+                  loadError={loadError}
+                  onRetryLoad={() => fetchActivities()} 
                   onViewAll={() => setActiveTab('journey')} 
                   onAddNew={() => setIsFormOpen(true)}
                   onViewActivity={(a) => setViewingActivityDetail(a)}
