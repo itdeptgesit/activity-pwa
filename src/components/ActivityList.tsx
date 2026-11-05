@@ -4,7 +4,7 @@ import { format, isToday, isAfter, subDays, startOfDay } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Pencil, Trash2, User,
-  ClipboardList, ChevronLeft, ChevronRight
+  ClipboardList, ChevronLeft, ChevronRight, Calendar
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -46,15 +46,11 @@ export default function ActivityList({
   const isDark = theme === 'dark';
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const statusBadgeMap: Record<string, { bg: string; color: string }> = {
-    'Completed': { bg: '#10B981', color: '#ffffff' },
-    'In Progress': { bg: '#6366F1', color: '#ffffff' },
-    'High Alert': { bg: '#EF4444', color: '#ffffff' },
-  };
-  const typeBadgeMap: Record<string, { bg: string; color: string }> = {
-    'Critical': { bg: 'rgba(239, 68, 68, 0.14)', color: '#EF4444' },
-    'Major': { bg: 'rgba(245, 158, 11, 0.18)', color: '#D97706' },
-    'Minor': { bg: isDark ? 'rgba(255,255,255,0.08)' : '#f1f5f9', color: isDark ? 'rgba(255,255,255,0.75)' : '#64748b' },
+  const statusDotMap: Record<string, string> = {
+    'Completed': isDark ? '#6FCF97' : '#43A86B',
+    'In Progress': isDark ? '#8B7CFF' : '#6C4CF1',
+    'High Alert': isDark ? '#E0685F' : '#D64545',
+    'Pending': isDark ? '#F5B26B' : '#F59E4C',
   };
 
   // 1. Filtering logic
@@ -114,20 +110,19 @@ export default function ActivityList({
         }}>
           {(['All', 'Today', 'Week', 'Month', 'In Progress'] as LogFilter[]).map(f => {
             const isActive = activeFilter === f;
-            const activeColor = isDark ? '#6366F1' : '#F59E0B';
             return (
               <button
                 key={f}
                 onClick={() => handleFilterChange(f)}
                 style={{
-                  padding: '10px 22px', borderRadius: 16,
-                  background: isActive ? activeColor : 'var(--app-card)',
-                  color: isActive ? '#fff' : 'var(--app-muted)',
+                  padding: '10px 18px', borderRadius: 999, minHeight: 40,
+                  background: isActive ? 'var(--app-text)' : 'var(--app-card)',
+                  color: isActive ? 'var(--app-bg)' : 'var(--app-muted)',
                   fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                  border: isActive ? `1.5px solid ${activeColor}` : '1.5px solid var(--app-border)',
+                  border: '1px solid var(--app-border)',
                   transition: 'all 0.3s ease',
                   whiteSpace: 'nowrap',
-                  boxShadow: isActive ? `0 8px 20px ${activeColor}30` : 'none'
+                  boxShadow: 'none'
                 }}
               >
                 {f}
@@ -147,9 +142,9 @@ export default function ActivityList({
             style={{
               width: '100%', height: 50,
               paddingLeft: 48, paddingRight: 16,
-              background: 'var(--app-card)', border: '1.5px solid var(--app-border)',
-              borderRadius: 14, color: 'var(--app-text)',
-              fontSize: 14, fontWeight: 600, outline: 'none'
+              background: 'var(--app-card)', border: '1px solid var(--app-border)',
+              borderRadius: 16, color: 'var(--app-text)',
+              fontSize: 16, fontWeight: 600, outline: 'none'
             }}
           />
         </div>
@@ -164,9 +159,9 @@ export default function ActivityList({
           >
             <div style={{
               width: 64, height: 64, borderRadius: 20,
-              background: 'var(--secondary)', margin: '0 auto 20px', 
+              background: 'var(--pastel-lav)', margin: '0 auto 20px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              border: '1px solid var(--app-border)', color: 'var(--app-muted)'
+              border: 'none', color: 'var(--pastel-lav-ink)'
             }}>
               <ClipboardList size={28} />
             </div>
@@ -189,101 +184,84 @@ export default function ActivityList({
                   onClick={() => onViewDetail(activity)}
                   transition={{ delay: index * 0.05, duration: 0.4 }}
                   style={{
-                    background: 'var(--app-card)', borderRadius: 24, padding: '22px 24px',
+                    background: 'var(--app-card)', borderRadius: 22, padding: '16px 18px 18px',
                     display: 'flex', flexDirection: 'column',
                     position: 'relative', overflow: 'hidden', cursor: 'pointer',
-                    border: '1.5px solid var(--app-border)',
-                    boxShadow: isDark ? '0 8px 30px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.03)'
+                    border: '1px solid var(--app-border)',
+                    boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.35)' : '0 6px 16px rgba(23,23,43,0.04)'
                   }}
                 >
                   <div style={{ position: 'relative', zIndex: 1 }}>
-                    {/* Status & Priority Badges */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                       <div style={{ display: 'flex', gap: 6 }}>
-                          {(() => {
-                            const statusStyle = statusBadgeMap[activity.status || ''] || { bg: 'rgba(99, 102, 241, 0.15)', color: '#4F46E5' };
-                            return (
-                              <span style={{
-                                fontSize: 9, fontWeight: 800, padding: '4px 12px', borderRadius: 8,
-                                textTransform: 'uppercase', letterSpacing: '0.08em',
-                                background: statusStyle.bg,
-                                color: statusStyle.color
-                              }}>
-                                {activity.status}
-                              </span>
-                            );
-                          })()}
-                          {(() => {
-                            const rawType = activity.type || 'Minor';
-                            const typeKey = ['Critical', 'Major', 'Minor'].includes(rawType) ? rawType : 'Minor';
-                            const typeStyle = typeBadgeMap[typeKey];
-                            return (
-                              <span style={{
-                                fontSize: 9, fontWeight: 800, padding: '4px 12px', borderRadius: 8,
-                                textTransform: 'uppercase', letterSpacing: '0.08em',
-                                background: typeStyle.bg,
-                                color: typeStyle.color
-                              }}>
-                                {rawType.toUpperCase()}
-                              </span>
-                            );
-                          })()}
-                       </div>
-                       
-                       <div style={{ display: 'flex', gap: 8 }}>
-                         {canEdit && (
-                            <button onClick={(e) => { e.stopPropagation(); onEdit(activity); }} style={{
-                              width: 38, height: 38, borderRadius: 12, background: 'var(--secondary)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--app-border)', cursor: 'pointer',
-                              color: 'var(--app-muted)'
-                            }}>
-                              <Pencil size={15} strokeWidth={2.5} />
-                            </button>
-                         )}
-                         <button onClick={(e) => { e.stopPropagation(); onDelete(activity.id); }} style={{
-                            width: 38, height: 38, borderRadius: 12, background: 'rgba(239, 68, 68, 0.1)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid rgba(239, 68, 68, 0.05)', cursor: 'pointer',
-                            color: '#ef4444'
+                    {/* Date chip & actions */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 7,
+                        background: 'var(--secondary)', borderRadius: 999, padding: '7px 12px',
+                        fontSize: 12, fontWeight: 600, color: 'var(--app-text)', whiteSpace: 'nowrap'
+                      }}>
+                        <Calendar size={14} color={isDark ? '#8B7CFF' : '#6C4CF1'} />
+                        {activity.created_at ? format(new Date(activity.created_at), 'd MMM yyyy') : '—'}
+                      </span>
+
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {canEdit && (
+                          <button onClick={(e) => { e.stopPropagation(); onEdit(activity); }} aria-label="Edit" style={{
+                            width: 40, height: 40, borderRadius: 12, background: 'var(--secondary)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--app-border)', cursor: 'pointer',
+                            color: 'var(--app-muted)'
                           }}>
-                            <Trash2 size={15} strokeWidth={2.5} />
+                            <Pencil size={15} strokeWidth={2.5} />
                           </button>
-                       </div>
+                        )}
+                        <button onClick={(e) => { e.stopPropagation(); onDelete(activity.id); }} aria-label="Delete" style={{
+                          width: 40, height: 40, borderRadius: 12, background: isDark ? 'rgba(224, 104, 95, 0.12)' : 'rgba(214, 69, 69, 0.08)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid transparent', cursor: 'pointer',
+                          color: isDark ? '#E0685F' : '#D64545'
+                        }}>
+                          <Trash2 size={15} strokeWidth={2.5} />
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Title & Info */}
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--app-text)', lineHeight: 1.2, marginBottom: 8, letterSpacing: '-0.4px' }}>
+                    {/* Title */}
+                    <h3 style={{ fontSize: 17, fontWeight: 800, color: 'var(--app-text)', lineHeight: 1.35, margin: '10px 0 9px', letterSpacing: '-0.2px' }}>
                       {activity.activity_name}
                     </h3>
-                    
-                    <div style={{ 
-                      fontSize: 11, fontWeight: 600, color: 'var(--app-muted)', 
-                      textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 20 
-                    }}>
-                      {config.label} • {activity.created_at ? format(new Date(activity.created_at), 'd MMM') : '—'}
+
+                    {/* Meta: kategori, status, prioritas */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: 12.5, fontWeight: 600, color: 'var(--app-muted)', flexWrap: 'wrap', marginBottom: 14 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: config.accent }} />
+                        {config.label}
+                      </span>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusDotMap[activity.status || ''] || '#94A3B8' }} />
+                        <span style={{ color: statusDotMap[activity.status || ''] || 'var(--app-muted)' }}>{activity.status}</span>
+                      </span>
+                      {activity.type === 'Critical' && (
+                        <span style={{ color: isDark ? '#E0685F' : '#D64545', fontWeight: 700 }}>Critical</span>
+                      )}
+                      {activity.type === 'Major' && (
+                        <span style={{ color: isDark ? '#D1A249' : '#D97706', fontWeight: 700 }}>Major</span>
+                      )}
                     </div>
 
-                    {/* Personnel Badge */}
-                    <div style={{
-                      alignSelf: 'flex-start', padding: '8px 14px', background: 'var(--app-card)',
-                      borderRadius: 14, display: 'flex', alignItems: 'center', gap: 10,
-                      border: '1.5px solid var(--app-border)'
-                    }}>
-                      <div style={{ 
-                        width: 22, height: 22, borderRadius: '50%', background: isDark ? '#fff' : '#000', 
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                        color: isDark ? '#000' : '#fff', fontSize: 10, fontWeight: 800 
+                    {/* Personnel */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                      <div style={{
+                        width: 26, height: 26, borderRadius: '50%', background: 'var(--pastel-lav)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'var(--pastel-lav-ink)', fontSize: 11, fontWeight: 800
                       }}>
                         {activity.it_personnel ? activity.it_personnel[0].toUpperCase() : 'A'}
                       </div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--app-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {activity.it_personnel || 'IT ADMIN'}
+                      <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--app-text)' }}>
+                        {activity.it_personnel || 'IT Admin'}
                       </span>
+                      {activity.duration ? (
+                        <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--app-muted)', marginLeft: 'auto' }}>{activity.duration}</span>
+                      ) : null}
                     </div>
-                  </div>
-
-                  {/* Decorative Background Icon */}
-                  <div style={{ position: 'absolute', bottom: -10, right: -10, opacity: isDark ? 0.1 : 0.05, color: 'var(--app-text)' }}>
-                     <config.icon size={130} strokeWidth={1.5} />
                   </div>
                 </motion.div>
               );
