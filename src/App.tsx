@@ -167,8 +167,8 @@ export default function App() {
 
   if (authLoading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100dvh', background: '#fcfcf8' }}>
-        <Loader2 size={32} className="animate-spin" color="#f5c842" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100dvh', background: '#F8F8FC' }}>
+        <Loader2 size={32} className="animate-spin" color="#6C4CF1" />
       </div>
     );
   }
@@ -418,7 +418,7 @@ export default function App() {
             <HomeSkeleton />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100dvh', gap: 14 }}>
-              <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(245,200,66,0.3)', borderTopColor: '#f5c842', animation: 'spin 0.8s linear infinite' }} />
+              <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(108,76,241,0.25)', borderTopColor: '#6C4CF1', animation: 'spin 0.8s linear infinite' }} />
               <p style={{ fontSize: 13, color: '#a0a0b0', fontWeight: 600 }}>Loading...</p>
             </div>
           )
@@ -477,7 +477,7 @@ export default function App() {
                   />
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-                    <Loader2 size={32} className="animate-spin" color="#f5c842" />
+                    <Loader2 size={32} className="animate-spin" color="#6C4CF1" />
                   </div>
                 )}
               </motion.div>
@@ -490,18 +490,14 @@ export default function App() {
       <nav style={{
         position: 'fixed', bottom: 'calc(12px + env(safe-area-inset-bottom, 0px))', left: '50%', transform: 'translateX(-50%)',
         width: 'calc(100% - 24px)', maxWidth: 456, height: 74,
-        background: theme === 'dark'
-          ? 'linear-gradient(180deg, rgba(30, 30, 36, 0.78), rgba(10, 10, 14, 0.7))'
-          : 'linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.68))',
-        backdropFilter: 'blur(30px) saturate(150%)',
-        WebkitBackdropFilter: 'blur(30px) saturate(150%)',
-        border: theme === 'dark' ? '1px solid rgba(255,255,255,0.14)' : '1px solid rgba(255,255,255,0.68)',
+        background: 'var(--app-card)',
+        border: '1px solid var(--app-border)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         padding: '8px 10px', zIndex: 100,
-        borderRadius: 22,
+        borderRadius: 30,
         boxShadow: theme === 'dark'
-          ? '0 12px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12)'
-          : '0 10px 26px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.9)'
+          ? '0 14px 30px rgba(0,0,0,0.45)'
+          : '0 14px 30px rgba(23,23,43,0.10)'
       }}>
         {/* Connection Status Indicator */}
         {!isOnline && (
@@ -525,10 +521,10 @@ export default function App() {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsFormOpen(true)} 
                 style={{
-                  width: 46, height: 46, borderRadius: 14,
-                  background: theme === 'dark' ? '#4F46E5' : '#0F172A',
+                  width: 52, height: 52, borderRadius: 17,
+                  background: theme === 'dark' ? '#6C4CF1' : '#17172B',
                   color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: theme === 'dark' ? '0 8px 18px rgba(79, 70, 229, 0.35)' : '0 8px 18px rgba(15,23,42,0.25)',
+                  boxShadow: theme === 'dark' ? '0 10px 20px rgba(108, 76, 241, 0.35)' : '0 10px 20px rgba(23,23,43,0.25)',
                   cursor: 'pointer', position: 'relative'
                 }}
               >
@@ -559,7 +555,7 @@ export default function App() {
                   opacity: isActive ? 1 : 0.35
                 }}
               >
-                <tab.icon size={23} strokeWidth={isActive ? 2.5 : 2} color={isActive ? (theme === 'dark' ? '#6366F1' : '#1a1a1a') : (theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#94a3b8')} />
+                <tab.icon size={23} strokeWidth={isActive ? 2.5 : 2} color={isActive ? (theme === 'dark' ? '#8B7CFF' : '#6C4CF1') : (theme === 'dark' ? 'rgba(255,255,255,0.5)' : '#B9BDCC')} />
               </motion.div>
               
             </motion.button>
